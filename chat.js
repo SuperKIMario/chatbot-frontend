@@ -5,19 +5,20 @@ const sendBtn = document.getElementById("sendBtn");
 const history = [];
 
 // Chatverlauf aus localStorage laden
-const storedHistory = localStorage.getItem('skimChatHistory');
+const storedHistory = localStorage.getItem("skimChatHistory");
 if (storedHistory) {
   const savedHistory = JSON.parse(storedHistory);
   savedHistory.forEach(msg => appendMessage(msg.content, msg.role === 'user' ? 'user' : 'bot'));
   history.push(...savedHistory);
 }
 
-// Chatverlauf speichern
+// Begrüßung direkt anzeigen
+appendMessage("Fröhlichen guten Tag....was kannst du mir über Mario sagen?", "bot");
+
 function saveHistory() {
-  localStorage.setItem('skimChatHistory', JSON.stringify(history));
+  localStorage.setItem("skimChatHistory", JSON.stringify(history));
 }
 
-// Nachricht anhängen
 function appendMessage(text, sender) {
   const div = document.createElement("div");
   div.className = "message " + sender;
@@ -26,46 +27,30 @@ function appendMessage(text, sender) {
   chat.scrollTop = chat.scrollHeight;
 }
 
-// Lade-Indikator anzeigen
-function showLoading() {
-  appendMessage("...", "bot");
-  return chat.querySelector(".bot:last-child");
-}
-
-// Lade-Indikator entfernen
-function removeLoading(loadingMessage) {
-  chat.removeChild(loadingMessage);
-}
-
-// Erste Begrüßung von SKIM beim Laden der Seite
-if (history.length === 0) {
-  const greeting = "Fröhlichen guten Tag, ich bin SKIM. Was möchtest du über Mario wissen?";
-  appendMessage(greeting, "bot");
-  history.push({ role: "assistant", content: greeting });
-  saveHistory();
-}
-
-// Send-Button Event-Handler
+// Klick-Event auf den Senden-Button
 sendBtn.onclick = async () => {
   const message = input.value.trim();
   if (!message) return;
 
   appendMessage(message, "user");
-  history.push({ role: "user", content: message });
-  saveHistory();
   input.value = "";
 
-  const loadingMessage = showLoading();
+  history.push({ role: "user", content: message });
+  saveHistory();
+
+  appendMessage("...", "bot");  // Ladeanzeige
+  const loadingMessage = chat.querySelector(".bot:last-child");
 
   try {
     const response = await fetch("/.netlify/functions/chatbot", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt: message }),
+      body: JSON.stringify({ message })
     });
 
     const data = await response.json();
-    removeLoading(loadingMessage);
+
+    chat.removeChild(loadingMessage);
 
     if (data.reply) {
       appendMessage(data.reply, "bot");
@@ -75,7 +60,7 @@ sendBtn.onclick = async () => {
       appendMessage("Entschuldigung, da ist etwas schiefgelaufen.", "bot");
     }
   } catch (error) {
-    removeLoading(loadingMessage);
-    appendMessage("Fehler beim Serverkontakt. Bitte versuche es später erneut.", "bot");
+    chat.removeChild(loadingMessage);
+    appendMessage("Fehler beim Serverkontakt. Bitte später erneut versuchen.", "bot");
   }
 };
