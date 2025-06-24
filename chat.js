@@ -2,65 +2,67 @@ const chat = document.getElementById("chat");
 const input = document.getElementById("userInput");
 const sendBtn = document.getElementById("sendBtn");
 
-const history = [];
+// Begrüßungstext
+const GREETING = "Fröhlichen guten Tag. Ich bin SKIM. Möchtest du mehr über Mario erfahren?";
 
-const greetingMessage = "Fröhlichen guten Tag. Ich bin SKIM. Möchtest du mehr über Mario erfahren?";
+let history = [];
 
-const storedHistory = localStorage.getItem("skimChatHistory");
-if (storedHistory) {
-  const savedHistory = JSON.parse(storedHistory);
-  savedHistory.forEach(msg => appendMessage(msg.content, msg.role === "user" ? "user" : "bot"));
-  history.push(...savedHistory);
+// Lade Verlauf
+const stored = localStorage.getItem("skimHistory");
+if (stored) {
+  history = JSON.parse(stored);
+  history.forEach(msg => {
+    const cls = msg.role === "user" ? "user" : (msg.role === "system" ? "system-message" : "bot");
+    appendMessage(msg.content, cls);
+  });
 } else {
-  // Wenn kein Verlauf, dann Begrüßung anzeigen
-  appendMessage(greetingMessage, "system-message");
-  history.push({ role: "system", content: greetingMessage });
+  // Zeige einmalig die Begrüßung
+  appendMessage(GREETING, "system-message");
+  history.push({ role: "system", content: GREETING });
+  localStorage.setItem("skimHistory", JSON.stringify(history));
 }
 
-function saveHistory() {
-  localStorage.setItem("skimChatHistory", JSON.stringify(history));
-}
-
-function appendMessage(text, sender) {
+// Nachricht anhängen
+function appendMessage(text, cls) {
   const div = document.createElement("div");
-  div.className = `message ${sender}`;
+  div.className = "message " + cls;
   div.textContent = text;
   chat.appendChild(div);
   chat.scrollTop = chat.scrollHeight;
 }
 
-sendBtn.onclick = async () => {
-  const message = input.value.trim();
-  if (!message) return;
+// Speichern
+function save() {
+  localStorage.setItem("skimHistory", JSON.stringify(history));
+}
 
-  appendMessage(message, "user");
+// Klick-Event
+sendBtn.onclick = async () => {
+  const msg = input.value.trim();
+  if (!msg) return;
+  appendMessage(msg, "user");
+  history.push({ role: "user", content: msg });
+  save();
   input.value = "";
 
-  history.push({ role: "user", content: message });
-  saveHistory();
-
   appendMessage("...", "bot");
-  const loadingMessage = chat.querySelector(".bot:last-child");
+  const loading = chat.querySelector(".bot:last-child");
 
   try {
-    const response = await fetch("/.netlify/functions/chatbot", {
+    const res = await fetch("/.netlify/functions/chatbot", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt: message }),
+      body: JSON.stringify({ prompt: msg }),
     });
+    const data = await res.json();
+    chat.removeChild(loading);
 
-    const data = await response.json();
-    chat.removeChild(loadingMessage);
-
-    if (data.reply) {
-      appendMessage(data.reply, "bot");
-      history.push({ role: "assistant", content: data.reply });
-      saveHistory();
-    } else {
-      appendMessage("Entschuldigung, da ist etwas schiefgelaufen.", "bot");
-    }
-  } catch (error) {
-    chat.removeChild(loadingMessage);
-    appendMessage("Fehler beim Serverkontakt. Bitte versuche es später erneut.", "bot");
+    const reply = data.reply || "Entschuldigung, da ist etwas schiefgelaufen.";
+    appendMessage(reply, "bot");
+    history.push({ role: "assistant", content: reply });
+    save();
+  } catch (err) {
+    chat.removeChild(loading);
+    appendMessage("Fehler beim Serverkontakt. Bitte später erneut versuchen.", "bot");
   }
 };
