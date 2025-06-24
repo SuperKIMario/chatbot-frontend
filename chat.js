@@ -2,12 +2,12 @@ const chat = document.getElementById("chat");
 const input = document.getElementById("userInput");
 const sendBtn = document.getElementById("sendBtn");
 
-// Nur einmalige Begrüßung
+// Begrüßung
 const GREETING = "Fröhlichen guten Tag. Ich bin SKIM. Möchtest du mehr über Mario erfahren?";
 
 let history = [];
 
-// Verlauf aus localStorage laden
+// Verlauf laden
 const stored = localStorage.getItem("skimHistory");
 if (stored) {
   history = JSON.parse(stored);
@@ -16,7 +16,6 @@ if (stored) {
     appendMessage(msg.content, cls);
   });
 } else {
-  // Erstaufruf: Begrüßung einfügen
   appendMessage(GREETING, "system-message");
   history.push({ role: "system", content: GREETING });
   localStorage.setItem("skimHistory", JSON.stringify(history));
