@@ -1,12 +1,31 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Mein Chatbot</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mein Chatbot</title>
 </head>
 <body>
-    <h1>Hallo, ich bin dein Chatbot!</h1>
-    <!-- Hier kannst du später deinen Chatbot-Code einbauen -->
+  <h1>Hallo, ich bin dein Chatbot!</h1>
+  <textarea id="input" rows="4" cols="50" placeholder="Schreibe hier deine Frage..."></textarea><br />
+  <button onclick="sendPrompt()">Senden</button>
+  <h2>Antwort:</h2>
+  <pre id="response"></pre>
+
+  <script>
+    async function sendPrompt() {
+      const prompt = document.getElementById('input').value;
+      const responseBox = document.getElementById('response');
+      responseBox.textContent = 'Lade Antwort...';
+
+      const res = await fetch('/.netlify/functions/chatbot', {
+        method: 'POST',
+        body: JSON.stringify({ prompt }),
+      });
+      const data = await res.json();
+
+      responseBox.textContent = data.reply || 'Keine Antwort erhalten.';
+    }
+  </script>
 </body>
 </html>
