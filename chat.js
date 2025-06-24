@@ -4,7 +4,6 @@ const sendBtn = document.getElementById("sendBtn");
 
 const history = [];
 
-// Chatverlauf aus localStorage laden
 const storedHistory = localStorage.getItem("skimChatHistory");
 if (storedHistory) {
   const savedHistory = JSON.parse(storedHistory);
@@ -12,12 +11,10 @@ if (storedHistory) {
   history.push(...savedHistory);
 }
 
-// Chatverlauf speichern
 function saveHistory() {
   localStorage.setItem("skimChatHistory", JSON.stringify(history));
 }
 
-// Nachricht anhängen
 function appendMessage(text, sender) {
   const div = document.createElement("div");
   div.className = `message ${sender}`;
@@ -26,7 +23,6 @@ function appendMessage(text, sender) {
   chat.scrollTop = chat.scrollHeight;
 }
 
-// Event für Senden-Button
 sendBtn.onclick = async () => {
   const message = input.value.trim();
   if (!message) return;
@@ -44,7 +40,7 @@ sendBtn.onclick = async () => {
     const response = await fetch("/.netlify/functions/chatbot", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt: message, history }),
+      body: JSON.stringify({ prompt: message }),
     });
 
     const data = await response.json();
