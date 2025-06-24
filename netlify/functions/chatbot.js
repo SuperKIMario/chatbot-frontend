@@ -2,7 +2,7 @@ const fetch = require("node-fetch");
 
 exports.handler = async function(event, context) {
   const body = JSON.parse(event.body);
-  const prompt = body.message;  // Hier ist "message" statt "prompt", damit Client und Server passen
+  const prompt = body.prompt;
 
   const apiKey = process.env.OPENAI_API_KEY;
 
@@ -15,7 +15,8 @@ exports.handler = async function(event, context) {
     body: JSON.stringify({
       model: "gpt-4o-mini",
       messages: [
-        { role: "system", content: "Du bist ein hilfreicher Assistent, der auf Deutsch antwortet." },
+        { role: "system", content: "Du bist ein hilfsbereiter Assistent, der auf Deutsch antwortet." },
+        ...body.history,
         { role: "user", content: prompt }
       ]
     }),
