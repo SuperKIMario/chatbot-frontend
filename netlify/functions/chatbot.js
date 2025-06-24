@@ -1,36 +1,34 @@
 const fetch = require("node-fetch");
 
-exports.handler = async function(event) {
+exports.handler = async (event) => {
   try {
-    const body = JSON.parse(event.body);
-    const prompt = body.prompt;
+    const { prompt } = JSON.parse(event.body);
     const apiKey = process.env.OPENAI_API_KEY;
 
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    const res = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
+        "Content-Type": "application/json"
       },
       body: JSON.stringify({
         model: "gpt-4o-mini",
         messages: [
           { role: "system", content: "Du bist ein hilfreicher Assistent, der auf Deutsch antwortet." },
           { role: "user", content: prompt }
-        ],
-      }),
+        ]
+      })
     });
 
-    const data = await response.json();
-
+    const json = await res.json();
     return {
       statusCode: 200,
-      body: JSON.stringify({ reply: data.choices[0].message.content }),
+      body: JSON.stringify({ reply: json.choices[0].message.content })
     };
-  } catch (error) {
+  } catch (e) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: error.message }),
+      body: JSON.stringify({ error: e.message })
     };
   }
 };
