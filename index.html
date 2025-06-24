@@ -14,7 +14,6 @@
     margin: 0; padding: 0;
     font-family: 'Poppins', 'Inter', 'Open Sans', sans-serif;
     min-height: 100vh;
-    /* Weißer Hintergrund mit ganz leichtem, hellem Verlauf */
     background: linear-gradient(to right, #ffffff 0%, #f9f9f9 100%);
     color: #000d60;
     display: flex;
@@ -43,14 +42,23 @@
     font-size: 2.4rem;
     margin-bottom: 0.3em;
   }
-  #text-section .claim {
+
+  /* Claim mit "I" als Trenner */
+  .claim {
     display: flex;
-    gap: 20px;
+    align-items: center;
     font-weight: 700;
     font-size: 1.2rem;
     color: #e2b007;
     margin-bottom: 1.6em;
   }
+  .separator {
+    margin: 0 12px;
+    color: #e2b007;
+    font-weight: 900;
+    user-select: none;
+  }
+
   #text-section p {
     font-size: 1.1rem;
     line-height: 1.6;
@@ -60,7 +68,7 @@
   /* Fettdruck für den letzten Textblock */
   #text-section #curious-text {
     margin-top: 2.4em;
-    font-weight: 700; /* Fett */
+    font-weight: 700;
     font-size: 1.15rem;
   }
   #text-section #btn-appointment {
@@ -190,12 +198,12 @@
   <section id="text-section">
     <h1>Mario Wittmer</h1>
     <div class="claim">
-  <span>Operativ stark</span>
-  <span class="separator">I</span>
-  <span>Strategisch klar</span>
-  <span class="separator">I</span>
-  <span>Digital bereit</span>
-</div>
+      <span>Operativ stark</span>
+      <span class="separator">I</span>
+      <span>Strategisch klar</span>
+      <span class="separator">I</span>
+      <span>Digital bereit</span>
+    </div>
 
     <p>Du willst wissen, wie ich ticke, was ich kann oder ob ich der Richtige für dein Projekt bin? <strong>Frag SKIM.</strong></p>
 
@@ -280,34 +288,4 @@
         appendMessage('Entschuldigung, da ist etwas schiefgelaufen.', 'bot-message');
       }
     } catch {
-      appendMessage('Fehler bei der Verbindung.', 'bot-message');
-    }
-  }
-
-  // Nachricht im Chatfenster hinzufügen
-  function appendMessage(text, className) {
-    const div = document.createElement('div');
-    div.className = 'message ' + className;
-    div.textContent = text;
-    chatMessages.appendChild(div);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-  }
-
-  // Eventlistener für Button und Enter-Taste
-  sendBtn.addEventListener('click', () => {
-    sendMessage(chatInput.value);
-  });
-  chatInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      sendMessage(chatInput.value);
-    }
-  });
-
-  // Starte Chat mit erster Bot-Nachricht
-  window.onload = () => {
-    botFirstMessage();
-  };
-</script>
-
-</body>
-</html>
+     
