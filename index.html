@@ -3,122 +3,134 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>SKIM Chatbot Popup</title>
+<title>Mario Wittmer – Digitaler Assistent SKIM</title>
 
 <!-- Google Fonts Poppins, Inter, Open Sans laden -->
 <link href="https://fonts.googleapis.com/css2?family=Inter&family=Open+Sans&family=Poppins&display=swap" rel="stylesheet" />
 
 <style>
-  /* Popup Container */
-  #chatPopup {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    width: 320px;
-    height: 420px;
-    border: 1px solid #000d60; /* Dunkelblau Rahmen */
-    background: #ffffec; /* Hellgelber Hintergrund */
-    box-shadow: 0 0 15px rgba(0,0,0,0.3);
-    border-radius: 12px;
-    display: flex;
-    flex-direction: column;
+  /* Body & Grundfarben */
+  body {
+    margin: 0; padding: 0;
     font-family: 'Poppins', 'Inter', 'Open Sans', sans-serif;
-    z-index: 10000;
-  }
-
-  /* Header mit Avatar und Begrüßung */
-  #chatHeader {
+    background: #ffffec;
+    color: #000d60;
     display: flex;
-    align-items: center;
-    padding: 12px;
-    background-color: #ffd892; /* Hellgelb */
-    border-bottom: 1px solid #e2b007; /* Goldton */
-  }
-  #chatHeader img {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    margin-right: 10px;
-    border: 2px solid #0c0092; /* Dunkles Blau für Rahmen */
-  }
-  #chatHeader span {
-    font-weight: 700;
-    color: #0c0092; /* Dunkelblau */
-    font-size: 1rem;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
   }
 
-  /* Chat Bereich */
-  #chat {
-    flex: 1;
-    padding: 10px;
-    overflow-y: auto;
-    background-color: #f1eeee; /* Sehr helles Grau */
-  }
-  .message {
-    margin: 8px 0;
-    padding: 8px 14px;
+  /* Container */
+  #container {
+    max-width: 460px;
+    background: white;
+    border: 3px solid #000d60;
     border-radius: 15px;
-    max-width: 75%;
-    word-wrap: break-word;
-    font-size: 0.95rem;
-  }
-  .user {
-    background-color: #fbd28f; /* Hellorange */
-    margin-left: auto;
-    color: #000d60; /* Dunkelblau */
-    text-align: right;
-  }
-  .bot {
-    background-color: #ffffec; /* Hellgelb */
-    margin-right: auto;
-    color: #000d60; /* Dunkelblau */
-    text-align: left;
+    padding: 30px 40px 40px 40px;
+    margin: 40px 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
   }
 
-  /* Eingabebereich */
-  #inputArea {
-    display: flex;
-    padding: 10px;
-    border-top: 1px solid #e2b007; /* Gold */
+  /* Überschrift / Claim */
+  h1 {
+    font-weight: 900;
+    font-size: 1.8rem;
+    margin-bottom: 0.3em;
+    color: #000d60;
   }
-  #userInput {
-    flex: 1;
-    padding: 10px;
-    font-size: 1em;
-    border: 1px solid #000d60;
-    border-radius: 8px;
-    font-family: inherit;
+
+  h2 {
+    font-weight: 600;
+    font-size: 1.2rem;
+    color: #e2b007;
+    margin-bottom: 1.8em;
   }
-  #sendBtn {
-    padding: 10px 16px;
-    margin-left: 10px;
-    font-size: 1em;
-    background-color: #000d60; /* Dunkelblau */
-    color: #ffd892; /* Hellgelb */
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-family: inherit;
+
+  /* Textabsatz */
+  p {
+    font-size: 1rem;
+    line-height: 1.5;
+    margin-bottom: 1.3em;
   }
-  #sendBtn:hover {
-    background-color: #0c0092; /* Etwas helleres Blau */
+
+  /* Hervorhebungen */
+  strong {
+    color: #0c0092;
   }
+
+  /* Avatar oben rechts */
+  #avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    float: right;
+    margin-left: 20px;
+    border: 3px solid #fbd28f;
+    object-fit: cover;
+  }
+
+  /* Buttons */
+  .btn {
+    display: inline-block;
+    text-decoration: none;
+    background-color: #000d60;
+    color: #ffd892;
+    padding: 12px 24px;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 1rem;
+    margin-right: 15px;
+    transition: background-color 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0,13,96,0.3);
+  }
+  .btn:hover {
+    background-color: #0c0092;
+  }
+
+  /* Footer / Datenschutz */
+  footer {
+    margin-top: 3em;
+    font-size: 0.85rem;
+    color: #555;
+    border-top: 1px solid #eee;
+    padding-top: 1em;
+    text-align: center;
+  }
+  footer a {
+    color: #000d60;
+    text-decoration: none;
+    font-weight: 600;
+  }
+  footer a:hover {
+    text-decoration: underline;
+  }
+
 </style>
 </head>
 <body>
 
-<div id="chatPopup">
-  <div id="chatHeader">
-    <img id="avatar" src="avatar.png" alt="SKIM Avatar" />
-    <span>Du möchtest mehr wissen? Mein digitaler Assistent SKIM steht dir gerne zur Verfügung.</span>
-  </div>
-  <div id="chat">
-    <div class="message bot">Fröhlichen guten Tag, ich bin SKIM. Hast du eine Frage?</div>
-  </div>
-  <div id="inputArea">
-    <input type="text" id="userInput" placeholder="Schreib deine Frage..." autocomplete="off" />
-    <button id="sendBtn">Senden</button>
-  </div>
+<div id="container">
+
+  <img src="avatar.png" alt="Mario Wittmer" id="avatar" />
+
+  <h1>Mario Wittmer</h1>
+  <h2>Operativ stark | Strategisch klar | Digital bereit</h2>
+
+  <p>Du willst wissen, wie ich ticke, was ich kann oder ob ich der Richtige für dein Projekt bin? <strong>Frag SKIM.</strong></p>
+
+  <p><strong>SKIM ist mein digitaler Assistent.</strong> Er hilft dir dabei, mehr über mich und meine Arbeit zu erfahren – direkt, unkompliziert und rund um die Uhr.</p>
+
+  <p>Bist du neugierig, wie ein Bot auf deiner Unternehmensseite dein Team unterstützen kann, ohne Menschen zu ersetzen?<br />
+  Dann buch dir jetzt direkt deinen Termin – ich freue mich auf deine Ideen!</p>
+
+  <a href="mailto:kontakt@mariowittmer.de" class="btn" target="_blank" rel="noopener noreferrer">Jetzt E-Mail schreiben</a>
+  <a href="https://calendly.com/mariowittmer/vereinbaren-sie-jetzt-einfach-einen-termin-mit-mir" class="btn" target="_blank" rel="noopener noreferrer">Termin buchen</a>
+
+  <footer>
+    Datenschutz: Es werden keine personenbezogenen Daten gespeichert. Der Chatbot dient ausschließlich zur Information und Beratung. Weitere Infos findest du auf <a href="https://mariowittmer.de/datenschutz" target="_blank" rel="noopener noreferrer">mariowittmer.de/datenschutz</a>.
+  </footer>
+
 </div>
 
 <script src="chat.js"></script>
