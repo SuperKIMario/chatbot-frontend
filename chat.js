@@ -2,12 +2,12 @@ const chat = document.getElementById("chat");
 const input = document.getElementById("userInput");
 const sendBtn = document.getElementById("sendBtn");
 
-// Begrüßungstext
+// Nur einmalige Begrüßung
 const GREETING = "Fröhlichen guten Tag. Ich bin SKIM. Möchtest du mehr über Mario erfahren?";
 
 let history = [];
 
-// Lade Verlauf
+// Verlauf aus localStorage laden
 const stored = localStorage.getItem("skimHistory");
 if (stored) {
   history = JSON.parse(stored);
@@ -16,13 +16,12 @@ if (stored) {
     appendMessage(msg.content, cls);
   });
 } else {
-  // Zeige einmalig die Begrüßung
+  // Erstaufruf: Begrüßung einfügen
   appendMessage(GREETING, "system-message");
   history.push({ role: "system", content: GREETING });
   localStorage.setItem("skimHistory", JSON.stringify(history));
 }
 
-// Nachricht anhängen
 function appendMessage(text, cls) {
   const div = document.createElement("div");
   div.className = "message " + cls;
@@ -31,18 +30,17 @@ function appendMessage(text, cls) {
   chat.scrollTop = chat.scrollHeight;
 }
 
-// Speichern
-function save() {
+function saveHistory() {
   localStorage.setItem("skimHistory", JSON.stringify(history));
 }
 
-// Klick-Event
 sendBtn.onclick = async () => {
   const msg = input.value.trim();
   if (!msg) return;
+
   appendMessage(msg, "user");
   history.push({ role: "user", content: msg });
-  save();
+  saveHistory();
   input.value = "";
 
   appendMessage("...", "bot");
@@ -60,7 +58,7 @@ sendBtn.onclick = async () => {
     const reply = data.reply || "Entschuldigung, da ist etwas schiefgelaufen.";
     appendMessage(reply, "bot");
     history.push({ role: "assistant", content: reply });
-    save();
+    saveHistory();
   } catch (err) {
     chat.removeChild(loading);
     appendMessage("Fehler beim Serverkontakt. Bitte später erneut versuchen.", "bot");
