@@ -4,11 +4,17 @@ const sendBtn = document.getElementById("sendBtn");
 
 const history = [];
 
+const greetingMessage = "Fröhlichen guten Tag. Ich bin SKIM. Möchtest du mehr über Mario erfahren?";
+
 const storedHistory = localStorage.getItem("skimChatHistory");
 if (storedHistory) {
   const savedHistory = JSON.parse(storedHistory);
   savedHistory.forEach(msg => appendMessage(msg.content, msg.role === "user" ? "user" : "bot"));
   history.push(...savedHistory);
+} else {
+  // Wenn kein Verlauf, dann Begrüßung anzeigen
+  appendMessage(greetingMessage, "system-message");
+  history.push({ role: "system", content: greetingMessage });
 }
 
 function saveHistory() {
