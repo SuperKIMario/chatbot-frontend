@@ -1,0 +1,39 @@
+{
+  "person": {
+    "name": "Mario Wittmer",
+    "roles": [
+      "Vertriebsstratege",
+      "Coach",
+      "KI-gestützter Systemdenker"
+    ],
+    "positionierung": "Operativ. Strategisch. Automatisiert.",
+    "description": "Mario Wittmer ist ein Vertriebsprofi mit über 20 Jahren Erfahrung, der klassische Kommunikation mit moderner Technologie verbindet. Er begleitet Unternehmen dabei, Klarheit in ihre Vertriebsprozesse zu bringen, Teams zu stärken und durch Automatisierung echte Wirkung zu erzielen. Er liebt Struktur, klare Worte und Menschen, die sich bewegen wollen. Sein Antrieb: Kommunikation, die funktioniert – und Systeme, die mitdenken."
+  },
+  "hardSkills": [
+    "B2B-Vertrieb (inkl. Kalt- & Telefonakquise)",
+    "Leadgenerierung & Zielgruppenansprache",
+    "Vertriebspsychologie & Abschlussstärke",
+    "Coaching von Teams & Einzelpersonen",
+    "Automatisierung mit KI (GPT, Make, Airtable, Notion)",
+    "Funnel-Design & smarte Systemarchitektur",
+    "Chatbot-Entwicklung als Prozessbeschleuniger"
+  ],
+  "softSkills": [
+    "Klar und strukturiert im Denken",
+    "Empathisch im Gespräch",
+    "Zuhörend, aber zielfokussiert",
+    "Analytisch, ohne abgehoben zu sein",
+    "Kommunikativ, verbindlich, authentisch",
+    "Schnell lernend, autodidaktisch in KI-Technologien",
+    "Systemisches Denken mit Menschenverstand"
+  ],
+  "projects": [
+    "SKIM Chatbot",
+    "Asgard GPT (mentale Begleitung)",
+    "Gelassenheitstagebuch (Notion + KI)",
+    "Vital-Tracker"
+  ],
+  "publications": [
+    "Buch: Chef im Kopf (demnächst)"
+  ]
+}
