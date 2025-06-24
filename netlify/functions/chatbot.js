@@ -4,7 +4,7 @@ exports.handler = async function(event, context) {
   const body = JSON.parse(event.body);
   const prompt = body.prompt;
 
-  const apiKey = process.env.openai_key;
+  const apiKey = process.env.OPENAI_API_KEY;
 
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
