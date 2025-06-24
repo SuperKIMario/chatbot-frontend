@@ -1,4 +1,4 @@
-const chat = document.getElementById("chat-messages");
+const chat = document.getElementById("chat");
 const input = document.getElementById("userInput");
 const sendBtn = document.getElementById("sendBtn");
 
@@ -8,36 +8,25 @@ const history = [];
 const storedHistory = localStorage.getItem("skimChatHistory");
 if (storedHistory) {
   const savedHistory = JSON.parse(storedHistory);
-  savedHistory.forEach(msg => {
-    // Begrüßung mit separater Klasse "welcome"
-    if (msg.role === "system") {
-      appendMessage(msg.content, "bot welcome");
-    } else {
-      appendMessage(msg.content, msg.role === "user" ? "user" : "bot");
-    }
-  });
+  savedHistory.forEach(msg => appendMessage(msg.content, msg.role === "user" ? "user" : "bot"));
   history.push(...savedHistory);
-} else {
-  // Begrüßung anzeigen, falls kein Verlauf vorhanden
-  const welcomeText = "Fröhlichen guten Tag. Ich bin SKIM. Möchtest du mehr über Mario erfahren?";
-  appendMessage(welcomeText, "bot welcome");
-  history.push({ role: "system", content: welcomeText });
-  localStorage.setItem("skimChatHistory", JSON.stringify(history));
 }
 
+// Chatverlauf speichern
 function saveHistory() {
   localStorage.setItem("skimChatHistory", JSON.stringify(history));
 }
 
+// Nachricht anhängen
 function appendMessage(text, sender) {
   const div = document.createElement("div");
-  div.className = "message " + sender;
+  div.className = `message ${sender}`;
   div.textContent = text;
   chat.appendChild(div);
   chat.scrollTop = chat.scrollHeight;
 }
 
-// Event-Handler für Send-Button
+// Event für Senden-Button
 sendBtn.onclick = async () => {
   const message = input.value.trim();
   if (!message) return;
@@ -49,16 +38,16 @@ sendBtn.onclick = async () => {
   saveHistory();
 
   appendMessage("...", "bot");
-  const loadingMessage = chat.querySelector(".message.bot:last-child");
+  const loadingMessage = chat.querySelector(".bot:last-child");
 
   try {
     const response = await fetch("/.netlify/functions/chatbot", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt: message }),
+      body: JSON.stringify({ prompt: message, history }),
     });
-    const data = await response.json();
 
+    const data = await response.json();
     chat.removeChild(loadingMessage);
 
     if (data.reply) {
