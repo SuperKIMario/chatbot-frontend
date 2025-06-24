@@ -1,4 +1,12 @@
 const fetch = require("node-fetch");
+const fs = require("fs");
+const path = require("path");
+
+// Hintergrund-Infos laden
+const bgInfo = JSON.parse(
+  fs.readFileSync(path.join(__dirname, "../../backgroundInfo.json"), "utf-8")
+);
+const bgPrompt = `Hintergrundinfos zu Mario Wittmer:\n${JSON.stringify(bgInfo)}`;
 
 exports.handler = async (event) => {
   try {
@@ -14,7 +22,14 @@ exports.handler = async (event) => {
       body: JSON.stringify({
         model: "gpt-4o-mini",
         messages: [
-          { role: "system", content: "Du bist ein hilfreicher Assistent, der auf Deutsch antwortet." },
+          // 1) System-Prompt mit Stil und Regeln
+          {
+            role: "system",
+            content: "Du bist SKIM, der persönliche digitale Assistent von Mario Wittmer. Beantworte nur Fragen zu Mario, seinen Skills, Projekten und Angeboten. Bleibe locker-humorvoll, professionell, empathisch und lösungsorientiert. Verweise bei komplexen juristischen oder medizinischen Fragen auf Experten."
+          },
+          // 2) Hintergrund-Info
+          { role: "system", content: bgPrompt },
+          // 3) Nutzer-Anfrage
           { role: "user", content: prompt }
         ]
       })
