@@ -3,182 +3,159 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Mario Wittmer – Digitaler Assistent SKIM</title>
+  <title>Mario Wittmer - Digitaler Assistent</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter&family=Open+Sans&family=Poppins&display=swap');
-    
     body {
-      font-family: 'Inter', 'Open Sans', 'Poppins', Arial, sans-serif;
-      margin: 40px;
-      background: linear-gradient(to right, #ffffff 0%, #f1eeee 100%);
-      color: #0c0092;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      gap: 48px;
-      min-height: 90vh;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(90deg, #f9f9f9 0%, #0b1a7a 100%);
+      margin: 0;
+      padding: 40px;
+      color: #001055;
     }
     #container {
+      max-width: 1100px;
+      margin: 0 auto;
       display: flex;
-      max-width: 980px;
-      width: 100%;
+      justify-content: space-between;
       background: white;
       border-radius: 12px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-      padding: 32px;
+      padding: 30px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
     }
     #text-section {
-      flex: 1;
-      max-width: 520px;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
+      flex: 1 1 48%;
     }
     #text-section h1 {
-      font-size: 2.6rem;
-      margin-bottom: 6px;
-      font-weight: 700;
-      color: #000d60;
+      font-size: 2.4rem;
+      margin-bottom: 5px;
     }
-    #claim {
-      color: #e2b007;
+    #text-section .claim {
       font-weight: 700;
-      font-size: 1.25rem;
-      margin-bottom: 28px;
-      user-select: none;
-      letter-spacing: 1px;
+      color: #d8a722;
+      font-size: 1.2rem;
     }
-    #claim span {
-      margin: 0 8px;
+    #text-section .claim:not(:last-child)::after {
+      content: " | ";
+      color: #d8a722;
     }
     #text-section p {
       font-size: 1.1rem;
-      line-height: 1.6;
-      margin-bottom: 1.5rem;
-      color: #0c0092;
+      line-height: 1.5;
+      margin: 15px 0;
     }
-    #text-section p strong {
+    #text-section strong {
       font-weight: 700;
+    }
+    #text-section a {
+      color: #001055;
+      text-decoration: none;
+      font-weight: 700;
+    }
+    #text-section a:hover {
+      text-decoration: underline;
     }
     #btn-appointment {
       display: inline-block;
-      padding: 14px 28px;
-      background-color: #0c0092;
-      color: #fff;
-      font-weight: 700;
+      background-color: #001055;
+      color: white;
+      padding: 12px 22px;
       border-radius: 8px;
+      font-weight: 700;
+      margin-top: 25px;
       text-decoration: none;
-      cursor: pointer;
       transition: background-color 0.3s ease;
-      align-self: start;
-      user-select: none;
-      font-size: 1.1rem;
     }
     #btn-appointment:hover {
-      background-color: #000060;
+      background-color: #0b1a7a;
     }
     #chat-section {
+      flex: 1 1 48%;
+      display: flex;
+      justify-content: flex-end;
+      align-items: flex-start;
+    }
+    #chat-container {
+      background-color: #0b1a7a;
+      border-radius: 12px;
       width: 350px;
-      background-color: #ffd892;
-      border-radius: 16px;
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-      position: relative;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
     }
     #chat-header {
-      background-color: #0c0092;
-      color: white;
-      padding: 16px;
+      background-color: #0b1a7a;
+      padding: 12px 18px;
       display: flex;
       align-items: center;
-      gap: 16px;
+      color: white;
       font-weight: 700;
-      font-size: 1.2rem;
-      user-select: none;
+      font-size: 1.1rem;
+      gap: 12px;
     }
     #chat-header img {
       border-radius: 50%;
-      width: 72px;
-      height: 72px;
-      object-fit: cover;
-      border: 3px solid #e2b007;
+      width: 48px;
+      height: 48px;
+      border: 3px solid #d8a722;
     }
-    #chat-log {
+    #chat-messages {
       flex-grow: 1;
-      padding: 20px;
+      padding: 15px;
+      background-color: #fff9dc;
       overflow-y: auto;
-      color: #0c0092;
-      font-size: 0.95rem;
-      line-height: 1.4;
-      user-select: text;
-      min-height: 350px;
-      background: #ffffec;
+      font-size: 1rem;
+      color: #001055;
     }
     .message {
       margin-bottom: 14px;
-      padding: 12px 18px;
-      border-radius: 14px;
-      max-width: 75%;
+      padding: 10px 14px;
+      border-radius: 12px;
+      max-width: 80%;
       word-wrap: break-word;
-      white-space: pre-wrap;
+      line-height: 1.4;
     }
-    .user {
-      background-color: #fbd28f;
-      color: #0c0092;
+    .message.user {
+      background-color: #f4d3a4;
       align-self: flex-end;
+      color: #2b1b00;
       font-weight: 600;
     }
-    .bot {
-      background-color: #fff6d8;
-      color: #0c0092;
+    .message.bot {
+      background-color: #d8a722;
       align-self: flex-start;
-      font-weight: 600;
-      border: 1px solid #e2b007;
+      color: #0b1a7a;
+      font-weight: 700;
+      border: 1.5px solid #001055;
     }
-    #chat-input-area {
+    #chat-input-section {
       display: flex;
-      border-top: 2px solid #e2b007;
-      background-color: #ffd892;
-      padding: 12px;
-      gap: 12px;
+      background-color: #f4d3a4;
+      padding: 8px;
+      align-items: center;
     }
     #userInput {
       flex-grow: 1;
-      padding: 10px;
       font-size: 1rem;
-      border-radius: 10px;
-      border: 2px solid #e2b007;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1.5px solid #001055;
+      margin-right: 8px;
       outline: none;
     }
     #sendBtn {
-      background-color: #0c0092;
+      background-color: #001055;
       border: none;
-      border-radius: 10px;
       color: white;
       font-weight: 700;
-      font-size: 1.3rem;
+      font-size: 1.2rem;
+      padding: 10px 14px;
+      border-radius: 8px;
       cursor: pointer;
-      width: 48px;
       transition: background-color 0.3s ease;
-      user-select: none;
     }
     #sendBtn:hover {
-      background-color: #000060;
-    }
-
-    /* Scrollbar Styling */
-    #chat-log::-webkit-scrollbar {
-      width: 10px;
-    }
-    #chat-log::-webkit-scrollbar-track {
-      background: #ffffec;
-      border-radius: 10px;
-    }
-    #chat-log::-webkit-scrollbar-thumb {
-      background: #e2b007;
-      border-radius: 10px;
+      background-color: #0b1a7a;
     }
   </style>
 </head>
@@ -186,25 +163,28 @@
   <div id="container">
     <section id="text-section">
       <h1>Mario Wittmer</h1>
-      <div id="claim">
-        Operativ stark<span>I</span>Strategisch klar<span>I</span>Digital bereit
+      <div>
+        <span class="claim">Operativ stark</span>
+        <span class="claim">Strategisch klar</span>
+        <span class="claim">Digital bereit</span>
       </div>
-      <p>Du willst wissen, wie ich ticke, was ich kann oder ob ich der Richtige für dein Projekt bin? <strong>Frag SKIM.</strong></p>
+      <p>Du willst wissen, wie ich ticke, was ich kann oder ob ich der Richtige für dein Projekt bin? <a href="#">Frag SKIM.</a></p>
       <p><strong>SKIM ist mein digitaler Assistent.</strong> Er hilft dir dabei, mehr über mich und meine Arbeit zu erfahren – direkt, unkompliziert und rund um die Uhr.</p>
-      <div style="height: 12px;"></div>
       <p><strong>Bist du neugierig, wie ein Bot auf deiner Unternehmensseite dein Team unterstützen kann, ohne Menschen zu ersetzen? Dann buch dir jetzt direkt deinen Termin – ich freue mich auf deine Ideen!</strong></p>
-      <a href="https://calendly.com/mariowittmer/vereinbaren-sie-jetzt-einfach-einen-termin-mit-mir" target="_blank" id="btn-appointment" rel="noopener noreferrer">Termin buchen</a>
+      <a id="btn-appointment" href="https://calendly.com/mariowittmer/vereinbaren-sie-jetzt-einfach-einen-termin-mit-mir" target="_blank" rel="noopener noreferrer">Termin buchen</a>
     </section>
 
-    <section id="chat-section" role="region" aria-label="Chat mit SKIM">
-      <div id="chat-header">
-        <img src="avatar.png" alt="Avatar von SKIM" />
-        SKIM
-      </div>
-      <div id="chat-log" aria-live="polite" aria-atomic="false" aria-relevant="additions"></div>
-      <div id="chat-input-area">
-        <input type="text" id="userInput" aria-label="Schreibe deine Frage" placeholder="Schreibe hier deine Frage..." autocomplete="off" />
-        <button id="sendBtn" aria-label="Nachricht senden">→</button>
+    <section id="chat-section">
+      <div id="chat-container">
+        <div id="chat-header">
+          <img src="avatar.png" alt="Avatar Mario Wittmer" />
+          SKIM
+        </div>
+        <div id="chat-messages"></div>
+        <div id="chat-input-section">
+          <input type="text" id="userInput" placeholder="Schreibe hier deine Frage.." autocomplete="off" />
+          <button id="sendBtn">→</button>
+        </div>
       </div>
     </section>
   </div>
