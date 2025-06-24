@@ -8,8 +8,21 @@ const history = [];
 const storedHistory = localStorage.getItem("skimChatHistory");
 if (storedHistory) {
   const savedHistory = JSON.parse(storedHistory);
-  savedHistory.forEach(msg => appendMessage(msg.content, msg.role === "user" ? "user" : "bot"));
+  savedHistory.forEach(msg => {
+    // Begrüßung mit separater Klasse "welcome"
+    if (msg.role === "system") {
+      appendMessage(msg.content, "bot welcome");
+    } else {
+      appendMessage(msg.content, msg.role === "user" ? "user" : "bot");
+    }
+  });
   history.push(...savedHistory);
+} else {
+  // Begrüßung anzeigen, falls kein Verlauf vorhanden
+  const welcomeText = "Fröhlichen guten Tag. Ich bin SKIM. Möchtest du mehr über Mario erfahren?";
+  appendMessage(welcomeText, "bot welcome");
+  history.push({ role: "system", content: welcomeText });
+  localStorage.setItem("skimChatHistory", JSON.stringify(history));
 }
 
 function saveHistory() {
@@ -35,7 +48,7 @@ sendBtn.onclick = async () => {
   history.push({ role: "user", content: message });
   saveHistory();
 
-  appendMessage("...", "bot"); // Lade-Indikator
+  appendMessage("...", "bot");
   const loadingMessage = chat.querySelector(".message.bot:last-child");
 
   try {
