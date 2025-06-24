@@ -5,135 +5,305 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Mario Wittmer – Digitaler Assistent SKIM</title>
 
-<!-- Google Fonts Poppins, Inter, Open Sans laden -->
+<!-- Google Fonts Poppins, Inter, Open Sans -->
 <link href="https://fonts.googleapis.com/css2?family=Inter&family=Open+Sans&family=Poppins&display=swap" rel="stylesheet" />
 
 <style>
-  /* Body & Grundfarben */
+  /* Body & Background */
   body {
     margin: 0; padding: 0;
     font-family: 'Poppins', 'Inter', 'Open Sans', sans-serif;
-    background: #ffffec;
+    min-height: 100vh;
+    background: linear-gradient(to right, #ffffec 0%, #000d60 80%);
     color: #000d60;
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    min-height: 100vh;
   }
 
-  /* Container */
+  /* Main Container */
   #container {
-    max-width: 460px;
-    background: white;
-    border: 3px solid #000d60;
-    border-radius: 15px;
-    padding: 30px 40px 40px 40px;
+    max-width: 1100px;
+    width: 95%;
     margin: 40px 20px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    display: flex;
+    gap: 40px;
+    flex-wrap: wrap;
+    background: transparent;
   }
 
-  /* Überschrift / Claim */
-  h1 {
-    font-weight: 900;
-    font-size: 1.8rem;
-    margin-bottom: 0.3em;
+  /* Left Text Section */
+  #text-section {
+    flex: 1 1 500px;
     color: #000d60;
   }
-
-  h2 {
-    font-weight: 600;
+  #text-section h1 {
+    font-weight: 900;
+    font-size: 2.4rem;
+    margin-bottom: 0.3em;
+  }
+  #text-section .claim {
+    display: flex;
+    gap: 20px;
+    font-weight: 700;
     font-size: 1.2rem;
     color: #e2b007;
-    margin-bottom: 1.8em;
+    margin-bottom: 1.6em;
   }
-
-  /* Textabsatz */
-  p {
-    font-size: 1rem;
-    line-height: 1.5;
-    margin-bottom: 1.3em;
+  #text-section p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 1.4em;
+    max-width: 480px;
   }
-
-  /* Hervorhebungen */
-  strong {
-    color: #0c0092;
+  #text-section #curious-text {
+    margin-top: 2.4em;
+    font-weight: 600;
+    font-size: 1.15rem;
   }
-
-  /* Avatar oben rechts */
-  #avatar {
-    width: 72px;
-    height: 72px;
-    border-radius: 50%;
-    float: right;
-    margin-left: 20px;
-    border: 3px solid #fbd28f;
-    object-fit: cover;
-  }
-
-  /* Buttons */
-  .btn {
+  #text-section #btn-appointment {
     display: inline-block;
-    text-decoration: none;
+    margin-top: 1em;
     background-color: #000d60;
     color: #ffd892;
-    padding: 12px 24px;
+    padding: 14px 28px;
     border-radius: 25px;
-    font-weight: 600;
-    font-size: 1rem;
-    margin-right: 15px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    text-decoration: none;
+    box-shadow: 0 5px 15px rgba(0,13,96,0.3);
     transition: background-color 0.3s ease;
-    box-shadow: 0 4px 8px rgba(0,13,96,0.3);
   }
-  .btn:hover {
+  #text-section #btn-appointment:hover {
     background-color: #0c0092;
   }
 
-  /* Footer / Datenschutz */
-  footer {
-    margin-top: 3em;
-    font-size: 0.85rem;
-    color: #555;
-    border-top: 1px solid #eee;
-    padding-top: 1em;
-    text-align: center;
+  /* Right Chat Section */
+  #chat-section {
+    flex: 1 1 350px;
+    max-width: 380px;
+    background-color: #0c0092;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    display: flex;
+    flex-direction: column;
+    color: #ffffec;
+    position: relative;
+    overflow: hidden;
   }
-  footer a {
-    color: #000d60;
-    text-decoration: none;
-    font-weight: 600;
+  #chat-header {
+    display: flex;
+    align-items: center;
+    padding: 16px 20px;
+    background-color: #000d60;
   }
-  footer a:hover {
-    text-decoration: underline;
+  #chat-header img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    margin-right: 14px;
+    border: 2px solid #fbd28f;
+    object-fit: cover;
+  }
+  #chat-header h2 {
+    margin: 0;
+    font-weight: 700;
+    font-size: 1.3rem;
   }
 
+  #chat-messages {
+    flex-grow: 1;
+    padding: 20px;
+    overflow-y: auto;
+    font-size: 1rem;
+  }
+  .message {
+    margin-bottom: 15px;
+    max-width: 80%;
+    line-height: 1.4;
+  }
+  .bot-message {
+    background-color: #fbd28f;
+    color: #0c0092;
+    padding: 12px 18px;
+    border-radius: 20px 20px 20px 0;
+  }
+  .user-message {
+    background-color: #000d60;
+    color: #ffd892;
+    padding: 12px 18px;
+    border-radius: 20px 20px 0 20px;
+    margin-left: auto;
+  }
+
+  #chat-input-area {
+    display: flex;
+    border-top: 1px solid #fbd28f;
+  }
+  #chat-input {
+    flex-grow: 1;
+    border: none;
+    padding: 15px 18px;
+    font-size: 1rem;
+    background-color: #0c0092;
+    color: #ffffec;
+  }
+  #chat-input::placeholder {
+    color: #fbd28f;
+  }
+  #send-btn {
+    background-color: #e2b007;
+    border: none;
+    color: #000d60;
+    padding: 0 20px;
+    font-weight: 700;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  #send-btn:hover {
+    background-color: #ffd892;
+  }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    #container {
+      flex-direction: column;
+      align-items: center;
+    }
+    #text-section, #chat-section {
+      max-width: 100%;
+      flex: none;
+    }
+    #chat-section {
+      margin-top: 40px;
+    }
+  }
 </style>
 </head>
 <body>
 
 <div id="container">
 
-  <img src="avatar.png" alt="Mario Wittmer" id="avatar" />
+  <section id="text-section">
+    <h1>Mario Wittmer</h1>
+    <div class="claim">
+      <span>Operativ stark</span>
+      <span>Strategisch klar</span>
+      <span>Digital bereit</span>
+    </div>
 
-  <h1>Mario Wittmer</h1>
-  <h2>Operativ stark | Strategisch klar | Digital bereit</h2>
+    <p>Du willst wissen, wie ich ticke, was ich kann oder ob ich der Richtige für dein Projekt bin? <strong>Frag SKIM.</strong></p>
 
-  <p>Du willst wissen, wie ich ticke, was ich kann oder ob ich der Richtige für dein Projekt bin? <strong>Frag SKIM.</strong></p>
+    <p><strong>SKIM ist mein digitaler Assistent.</strong><br />
+    Er hilft dir dabei, mehr über mich und meine Arbeit zu erfahren – direkt, unkompliziert und rund um die Uhr.</p>
 
-  <p><strong>SKIM ist mein digitaler Assistent.</strong> Er hilft dir dabei, mehr über mich und meine Arbeit zu erfahren – direkt, unkompliziert und rund um die Uhr.</p>
+    <div id="curious-text">Bist du neugierig, wie ein Bot auf deiner Unternehmensseite dein Team unterstützen kann, ohne Menschen zu ersetzen? Dann buch dir jetzt direkt deinen Termin – ich freue mich auf deine Ideen!</div>
 
-  <p>Bist du neugierig, wie ein Bot auf deiner Unternehmensseite dein Team unterstützen kann, ohne Menschen zu ersetzen?<br />
-  Dann buch dir jetzt direkt deinen Termin – ich freue mich auf deine Ideen!</p>
+    <a id="btn-appointment" href="https://calendly.com/mariowittmer/vereinbaren-sie-jetzt-einfach-einen-termin-mit-mir" target="_blank" rel="noopener noreferrer">Termin buchen</a>
+  </section>
 
-  <a href="mailto:kontakt@mariowittmer.de" class="btn" target="_blank" rel="noopener noreferrer">Jetzt E-Mail schreiben</a>
-  <a href="https://calendly.com/mariowittmer/vereinbaren-sie-jetzt-einfach-einen-termin-mit-mir" class="btn" target="_blank" rel="noopener noreferrer">Termin buchen</a>
+  <section id="chat-section">
+    <div id="chat-header">
+      <img src="avatar.png" alt="Mario Wittmer" />
+      <h2>SKIM</h2>
+    </div>
 
-  <footer>
-    Datenschutz: Es werden keine personenbezogenen Daten gespeichert. Der Chatbot dient ausschließlich zur Information und Beratung. Weitere Infos findest du auf <a href="https://mariowittmer.de/datenschutz" target="_blank" rel="noopener noreferrer">mariowittmer.de/datenschutz</a>.
-  </footer>
+    <div id="chat-messages"></div>
+
+    <div id="chat-input-area">
+      <input type="text" id="chat-input" placeholder="Schreibe deine Frage..." autocomplete="off" />
+      <button id="send-btn" aria-label="Senden">→</button>
+    </div>
+  </section>
 
 </div>
 
-<script src="chat.js"></script>
+<script>
+  const chatMessages = document.getElementById('chat-messages');
+  const chatInput = document.getElementById('chat-input');
+  const sendBtn = document.getElementById('send-btn');
+
+  // Chatverlauf speichern
+  const history = [];
+
+  // Erste Bot-Nachricht mit Animation (Typen-Simulation)
+  function botFirstMessage() {
+    const message = "Fröhlichen guten Tag, ich bin SKIM. Was möchtest du über Mario wissen?";
+    typeMessage(message, 'bot-message');
+  }
+
+  // Simuliere Tipp-Animation
+  function typeMessage(text, className) {
+    let i = 0;
+    const container = document.createElement('div');
+    container.className = className;
+    chatMessages.appendChild(container);
+
+    function typing() {
+      if (i < text.length) {
+        container.textContent += text.charAt(i);
+        i++;
+        setTimeout(typing, 40);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+    }
+    typing();
+  }
+
+  // Sende Nachricht an Backend (Netlify Function)
+  async function sendMessage(message) {
+    if (!message.trim()) return;
+
+    appendMessage(message, 'user-message');
+    chatInput.value = '';
+
+    history.push({ role: 'user', content: message });
+
+    try {
+      const response = await fetch('/.netlify/functions/chatbot', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message, history }),
+      });
+
+      const data = await response.json();
+
+      if (data.answer) {
+        appendMessage(data.answer, 'bot-message');
+        history.push({ role: 'assistant', content: data.answer });
+      } else {
+        appendMessage('Entschuldigung, da ist etwas schiefgelaufen.', 'bot-message');
+      }
+    } catch {
+      appendMessage('Fehler bei der Verbindung.', 'bot-message');
+    }
+  }
+
+  // Nachricht im Chatfenster hinzufügen
+  function appendMessage(text, className) {
+    const div = document.createElement('div');
+    div.className = 'message ' + className;
+    div.textContent = text;
+    chatMessages.appendChild(div);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  // Eventlistener für Button und Enter-Taste
+  sendBtn.addEventListener('click', () => {
+    sendMessage(chatInput.value);
+  });
+  chatInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      sendMessage(chatInput.value);
+    }
+  });
+
+  // Starte Chat mit erster Bot-Nachricht
+  window.onload = () => {
+    botFirstMessage();
+  };
+</script>
 
 </body>
 </html>
