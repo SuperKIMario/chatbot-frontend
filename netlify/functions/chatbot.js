@@ -2,7 +2,7 @@ const fetch = require("node-fetch");
 
 exports.handler = async function(event, context) {
   const body = JSON.parse(event.body);
-  const prompt = body.prompt;
+  const prompt = body.message;  // Hier ist "message" statt "prompt", damit Client und Server passen
 
   const apiKey = process.env.OPENAI_API_KEY;
 
