@@ -14,8 +14,11 @@ exports.handler = async function(event, context) {
     },
     body: JSON.stringify({
       model: "gpt-4o-mini",
-      messages: [{ role: "user", content: prompt }]
-    })
+      messages: [
+        { role: "system", content: "Du bist ein hilfreicher Assistent, der auf Deutsch antwortet." },
+        { role: "user", content: prompt }
+      ]
+    }),
   });
 
   const data = await response.json();
