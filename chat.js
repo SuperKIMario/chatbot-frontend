@@ -4,8 +4,8 @@ const sendBtn = document.getElementById("sendBtn");
 
 const history = [];
 
-// Begrüßungsnachricht direkt beim Laden
-appendMessage("Hallo, ich bin Skim, dein digitaler Assistent. Was möchtest du über Mario wissen?", "bot");
+// Begrüßungsnachricht automatisch anzeigen
+appendMessage("Fröhlichen guten Tag! Ich bin SKIM, dein digitaler Assistent. Was möchtest du über Mario wissen?", "bot");
 
 function appendMessage(text, sender) {
   const div = document.createElement("div");
