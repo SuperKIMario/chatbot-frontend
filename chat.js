@@ -1,19 +1,24 @@
+// chat.js
 const chat = document.getElementById("chat");
 const input = document.getElementById("userInput");
 const sendBtn = document.getElementById("sendBtn");
 
-const history = JSON.parse(localStorage.getItem("skimHistory") || "[]");
-
-// Alte Sitzung wiederherstellen
-history.forEach(msg => appendMessage(msg.content, msg.role));
-
-function saveHistory() {
-  localStorage.setItem("skimHistory", JSON.stringify(history));
+// Chat-Verlauf in JS-Array & localStorage
+const history = [];
+const stored = localStorage.getItem("skimChatHistory");
+if (stored) {
+  const saved = JSON.parse(stored);
+  saved.forEach(m => appendMessage(m.content, m.role));
+  history.push(...saved);
 }
 
-function appendMessage(text, sender) {
+function saveHistory() {
+  localStorage.setItem("skimChatHistory", JSON.stringify(history));
+}
+
+function appendMessage(text, role) {
   const div = document.createElement("div");
-  div.className = "message " + sender;
+  div.className = "message " + (role === "user" ? "user" : "assistant");
   div.textContent = text;
   chat.appendChild(div);
   chat.scrollTop = chat.scrollHeight;
@@ -23,14 +28,14 @@ sendBtn.onclick = async () => {
   const message = input.value.trim();
   if (!message) return;
 
+  // User-Nachricht
   appendMessage(message, "user");
   history.push({ role: "user", content: message });
   saveHistory();
   input.value = "";
 
-  // Lade-Indicator
-  appendMessage("…", "bot");
-  const loading = chat.lastChild;
+  // Lade-Indikator als Assistant-Nachricht
+  appendMessage("⏳", "assistant");
 
   try {
     const res = await fetch("/.netlify/functions/chatbot", {
@@ -38,13 +43,17 @@ sendBtn.onclick = async () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message, history })
     });
-    const { answer } = await res.json();
-    chat.removeChild(loading);
-    appendMessage(answer, "bot");
-    history.push({ role: "bot", content: answer });
+    const { reply } = await res.json();
+
+    // Lade-Indikator entfernen
+    chat.lastChild.remove();
+
+    // Assistants-Antwort
+    appendMessage(reply, "assistant");
+    history.push({ role: "assistant", content: reply });
     saveHistory();
-  } catch {
-    chat.removeChild(loading);
-    appendMessage("Entschuldigung, da ist etwas schiefgelaufen.", "bot");
+  } catch (e) {
+    chat.lastChild.remove();
+    appendMessage("Entschuldigung, da ist etwas schiefgelaufen.", "assistant");
   }
 };
