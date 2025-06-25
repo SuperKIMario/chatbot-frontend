@@ -1,39 +1,22 @@
-// netlify/functions/chatbot.js
 const fetch = require("node-fetch");
-const backgroundInfo = require("./backgroundInfo.js");
 
-exports.handler = async function(event, context) {
+exports.handler = async function(event) {
   try {
-    // 1) Request parsen
-    const { message, history } = JSON.parse(event.body);
-    console.log("▶️ User fragt:", message);
+    const { prompt } = JSON.parse(event.body);
 
-    // 2) Hintergrund laden
-    console.log(`✅ Hintergrundwissen geladen (${backgroundInfo.length} Einträge)`);
-
-    // 3) System-Prompt + Wissensdatenbank
+    // Dein System-Prompt + Hintergrundwissen hier inline:
     const systemPrompt = `
 Du bist SKIM, Marios persönlicher digitaler Assistent.
-Nutze folgendes Hintergrundwissen, wenn du antwortest:
-${JSON.stringify(backgroundInfo, null, 2)}
+Nutze dein Hintergrundwissen, um Fragen präzise zu beantworten:
+- Name: Mario Wittmer
+- Rolle: Vertriebsstratege | Coach | KI-gestützter Systemdenker
+- Positionierung: Operativ. Strategisch. Automatisiert.
+- Schwerpunkte: B2B-Vertrieb, Kaltakquise, Lead-Generierung, Coaching, KI-Automatisierung, Funnel-Design
+- Soft-Skills: klar, empathisch, lösungsorientiert, systemisch denkend
     `.trim();
 
-    // 4) History mappen (bot→assistant)
-    const mappedHistory = history.map(m => ({
-      role: m.role === "bot" ? "assistant" : m.role,
-      content: m.content
-    }));
-
-    // 5) Nachrichten-Array aufbauen
-    const messages = [
-      { role: "system", content: systemPrompt },
-      ...mappedHistory,
-      { role: "user", content: message }
-    ];
-    console.log("📤 Sende an OpenAI:", messages);
-
-    // 6) OpenAI-Request
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    // Request an OpenAI
+    const openaiRes = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
@@ -41,26 +24,24 @@ ${JSON.stringify(backgroundInfo, null, 2)}
       },
       body: JSON.stringify({
         model: "gpt-4o-mini",
-        messages
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: prompt }
+        ]
       })
     });
-    const data = await response.json();
 
+    const data = await openaiRes.json();
     if (!data.choices || !data.choices[0] || !data.choices[0].message) {
       throw new Error("Keine Antwort vom Modell");
     }
 
-    const reply = data.choices[0].message.content;
-    console.log("📥 Antwort von OpenAI:", reply);
-
-    // 7) Antwort zurückgeben
     return {
       statusCode: 200,
-      body: JSON.stringify({ answer: reply })
+      body: JSON.stringify({ reply: data.choices[0].message.content })
     };
-
-  } catch (err) {
-    console.error("❌ Handler Error:", err);
+  } catch(err) {
+    console.error("Handler Error:", err);
     return {
       statusCode: 500,
       body: JSON.stringify({ error: err.message })
