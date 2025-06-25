@@ -1,64 +1,63 @@
 // netlify/functions/chatbot.js
 const fetch = require("node-fetch");
-const bg = require("./backgroundInfo.js");
+const fs = require("fs");
+const path = require("path");
 
 exports.handler = async function(event) {
   try {
-    // 1) Request-Body parsen
     const { message, history } = JSON.parse(event.body);
 
-    // 2) System-Prompt aus backgroundInfo zusammenbauen
-    const systemPrompt = `
-Du bist SKIM, ein lockerer, humorvoller und professioneller Chatbot.
-Name: ${bg.profil.name}
-Rolle: ${bg.profil.rolle}
-Positionierung: ${bg.profil.positionierung}
-`.trim();
+    // Hintergrundwissen laden
+    const bg = JSON.parse(
+      fs.readFileSync(path.join(__dirname, "backgroundInfo.json"), "utf8")
+    );
 
-    // 3) Anfrage an OpenAI
+    // System-Prompt + Wissensdatenbank
+    const systemPrompt = `
+Du bist SKIM, Marios persönlicher digitaler Assistent.
+Nutze folgendes Hintergrundwissen, wenn du antwortest:
+${JSON.stringify(bg, null, 2)}
+`;
+
+    // History mappen: "bot" → "assistant"
+    const mapped = history.map(m => ({
+      role: m.role === "bot" ? "assistant" : m.role,
+      content: m.content
+    }));
+
+    // Nachrichten-Array für OpenAI
+    const messages = [
+      { role: "system", content: systemPrompt },
+      ...mapped,
+      { role: "user", content: message }
+    ];
+
+    // Request an OpenAI
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-        "Content-Type": "application/json",
+        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
+        "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "gpt-3.5-turbo",
-        messages: [
-          { role: "system", content: systemPrompt },
-          ...history,
-          { role: "user", content: message },
-        ],
-      }),
+        model: "gpt-4o-mini",
+        messages
+      })
     });
 
     const data = await response.json();
-
-    // 4) Fehler von OpenAI abfangen
-    if (!response.ok) {
-      console.error("OpenAI Error:", data);
-      throw new Error(`OpenAI ${data.error?.message || response.status}`);
-    }
-
-    // 5) Antwort auspacken
     const reply = data.choices?.[0]?.message?.content;
-    if (!reply) {
-      console.error("Keine choices:", data);
-      throw new Error("Keine Antwort vom Modell");
-    }
+    if (!reply) throw new Error("Keine Antwort vom Modell");
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ answer: reply }),
+      body: JSON.stringify({ reply })
     };
-
   } catch (err) {
     console.error("Handler Error:", err);
     return {
       statusCode: 500,
-      body: JSON.stringify({
-        answer: "Fehler beim Serverkontakt. Bitte versuche es später erneut.",
-      }),
+      body: JSON.stringify({ reply: "Entschuldigung, da ist etwas schiefgelaufen." })
     };
   }
 };
