@@ -41,7 +41,7 @@
       color: #DAA520;
       margin-bottom: 1.5rem;
     }
-    #text-section p, #text-section a {
+    #text-section p {
       color: #001055;
       line-height: 1.5;
       margin-bottom: 1rem;
@@ -84,13 +84,18 @@
       font-size: 1.25rem;
       margin: 0;
     }
+
+    /* Scrollbarer Chatbereich */
     #chat {
       flex: 1;
       padding: 1rem;
       display: flex;
       flex-direction: column;
       gap: .5rem;
+      overflow-y: auto;          /* <— hier */
+      max-height: 400px;         /* optionale Obergrenze */
     }
+
     .message.user {
       align-self: flex-end;
       background: #fff;
@@ -116,6 +121,7 @@
       color: #001055;
       font-weight: bold;
     }
+
     .chat-input-area {
       background: #DAA520;
       padding: .75rem;
