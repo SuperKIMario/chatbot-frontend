@@ -1,10 +1,35 @@
 const fetch = require("node-fetch");
 
+// Einfache In-Memory-Rate-Limit-Tabelle (IP-basiert)
+const calls = {};
+
 exports.handler = async function(event) {
   try {
+    // 1) Rate-Limit auslesen
+    const ip = event.headers['x-nf-client-connection-ip']
+             || event.headers['x-forwarded-for']
+             || event.headers['client-ip']
+             || 'unknown';
+    const now = Date.now();
+    if (!calls[ip] || now - calls[ip].reset > 24 * 3600 * 1000) {
+      // Reset nach 24 Stunden
+      calls[ip] = { count: 0, reset: now };
+    }
+    if (calls[ip].count >= 5) {
+      // Limit erreicht
+      return {
+        statusCode: 429,
+        body: JSON.stringify({
+          error: "Rate limit exceeded: max 5 requests per 24 hours."
+        })
+      };
+    }
+    calls[ip].count++;
+
+    // 2) Payload parsen
     const { prompt } = JSON.parse(event.body);
 
-    // Dein System-Prompt + Hintergrundwissen hier inline:
+    // 3) System-Prompt (Hintergrundinfos)
     const systemPrompt = `
 Du bist SKIM, Marios persönlicher digitaler Assistent.
 Nutze dein Hintergrundwissen, um Fragen präzise zu beantworten:
@@ -15,7 +40,7 @@ Nutze dein Hintergrundwissen, um Fragen präzise zu beantworten:
 - Soft-Skills: klar, empathisch, lösungsorientiert, systemisch denkend
     `.trim();
 
-    // Request an OpenAI
+    // 4) Anfrage an OpenAI
     const openaiRes = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -26,21 +51,23 @@ Nutze dein Hintergrundwissen, um Fragen präzise zu beantworten:
         model: "gpt-4o-mini",
         messages: [
           { role: "system", content: systemPrompt },
-          { role: "user", content: prompt }
+          { role: "user",   content: prompt }
         ]
       })
     });
 
     const data = await openaiRes.json();
-    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+    if (!data.choices?.[0]?.message) {
       throw new Error("Keine Antwort vom Modell");
     }
 
+    // 5) Antwort zurückgeben
     return {
       statusCode: 200,
       body: JSON.stringify({ reply: data.choices[0].message.content })
     };
-  } catch(err) {
+
+  } catch (err) {
     console.error("Handler Error:", err);
     return {
       statusCode: 500,
