@@ -1,54 +1,73 @@
-const fetch = require("node-fetch");
-const backgroundInfo = require("./backgroundInfo.json");
+// netlify/functions/chatbot.js
 
-exports.handler = async function(event, context) {
+const fetch = require("node-fetch");
+const fs = require("fs");
+const path = require("path");
+
+exports.handler = async function (event) {
   try {
     const { message, history } = JSON.parse(event.body);
 
+    // Hintergrundwissen laden
+    const bgRaw = fs.readFileSync(
+      path.join(__dirname, "backgroundInfo.json"),
+      "utf8"
+    );
+    const bg = JSON.parse(bgRaw);
+
+    // System-Prompt zusammenbauen
     const systemPrompt = `
 Du bist SKIM, ein lockerer, humorvoller und professioneller Chatbot.
 Du kennst Marios Profil:
-${backgroundInfo.profile.name} – ${backgroundInfo.profile.role}
-Tagline: ${backgroundInfo.profile.tagline}
+${bg.profil}
 
-Fachliche Schwerpunkte:
-${backgroundInfo.focus.map((f,i) => `${i+1}. ${f}`).join("\n")}
+Seine fachlichen Schwerpunkte:
+${bg.schwerpunkte.join("\n")}
 
-Sprachstil:
-${backgroundInfo.style.tone}
-Dos: ${backgroundInfo.style.dos.join(", ")}
-Don'ts: ${backgroundInfo.style.donts.join(", ")}
+Soft Skills & Arbeitsweise:
+${bg.softskills.join(", ")}
+
+Beantworte kurz, prägnant, freundlich. Versuche, immer zum Buch-einen-Termin-CTA hinzuführen.
 `;
 
-    const messages = [
-      { role: "system", content: systemPrompt },
-      ...(history || []),
-      { role: "user", content: message }
-    ];
-
-    const res = await fetch("https://api.openai.com/v1/chat/completions", {
+    // Request an OpenAI
+    const openaiRes = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
-        messages,
-        temperature: 0.7
-      })
+        model: "gpt-4-mini",
+        messages: [
+          { role: "system", content: systemPrompt },
+          ...history,
+          { role: "user", content: message },
+        ],
+      }),
     });
+    const data = await openaiRes.json();
 
-    const data = await res.json();
+    // Safely extrahieren
+    const answer =
+      data.choices &&
+      data.choices[0] &&
+      data.choices[0].message &&
+      data.choices[0].message.content
+        ? data.choices[0].message.content
+        : "Entschuldigung, da ist etwas schiefgelaufen.";
+
     return {
       statusCode: 200,
-      body: JSON.stringify({ answer: data.choices[0].message.content })
+      body: JSON.stringify({ answer }),
     };
   } catch (err) {
-    console.error(err);
+    console.error("Function error:", err);
     return {
       statusCode: 500,
-      body: JSON.stringify({ answer: "Entschuldigung, da ist etwas schiefgelaufen." })
+      body: JSON.stringify({
+        answer: "Fehler beim Serverkontakt. Bitte versuche es später erneut.",
+      }),
     };
   }
 };
