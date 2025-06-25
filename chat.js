@@ -2,51 +2,50 @@
 const chat = document.getElementById("chat");
 const input = document.getElementById("userInput");
 const sendBtn = document.getElementById("sendBtn");
-let history = [];
 
-// Initiale Bot-Begrüßung
-appendMessage("Fröhlichen guten Tag. Ich bin SKIM. Möchtest du mehr über Mario erfahren?", "bot-init");
+const history = [];
 
-// Funktion zum Anhängen
-function appendMessage(text, sender) {
-  const div = document.createElement("div");
-  div.className = "message " + (sender === "bot" ? "bot" : sender === "bot-init" ? "bot-init" : "user");
-  div.textContent = text;
-  chat.appendChild(div);
-  chat.scrollTop = chat.scrollHeight;
-}
+// Begrüßung einmal anzeigen
+appendMessage("Fröhlichen guten Tag. Ich bin SKIM. Möchtest du mehr über Mario erfahren?", "bot-greet");
 
-// Klick-Handler
-sendBtn.addEventListener("click", async () => {
-  const message = input.value.trim();
-  if (!message) return;
-
-  // User anzeigen + history speichern
-  appendMessage(message, "user");
-  history.push({ role: "user", content: message });
+sendBtn.onclick = async () => {
+  const text = input.value.trim();
+  if (!text) return;
+  // User-Message
+  appendMessage(text, "user");
+  history.push({ role: "user", content: text });
   input.value = "";
-
-  // Lade-Indikator
-  appendMessage("...", "bot");
+  // Lade-Indicator
+  appendMessage("…", "bot");
   const loading = chat.lastChild;
 
   try {
     const res = await fetch("/.netlify/functions/chatbot", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message, history })
+      body: JSON.stringify({ message: text, history }),
     });
-    const data = await res.json();
+    const { answer } = await res.json();
+
+    // remove loading
     chat.removeChild(loading);
 
-    if (data.answer) {
-      appendMessage(data.answer, "bot");
-      history.push({ role: "assistant", content: data.answer });
+    if (answer) {
+      appendMessage(answer, "bot");
+      history.push({ role: "assistant", content: answer });
     } else {
       appendMessage("Entschuldigung, da ist etwas schiefgelaufen.", "bot");
     }
-  } catch (e) {
+  } catch {
     chat.removeChild(loading);
     appendMessage("Fehler beim Serverkontakt. Bitte später erneut.", "bot");
   }
-});
+};
+
+function appendMessage(txt, cls) {
+  const d = document.createElement("div");
+  d.className = "message " + cls;
+  d.textContent = txt;
+  chat.appendChild(d);
+  chat.scrollTop = chat.scrollHeight;
+}
