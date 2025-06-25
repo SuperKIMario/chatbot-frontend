@@ -1,20 +1,33 @@
-// chat.js
 const chat = document.getElementById("chat");
 const input = document.getElementById("userInput");
 const sendBtn = document.getElementById("sendBtn");
 
-const history = [];
+const history = JSON.parse(localStorage.getItem("skimHistory") || "[]");
 
-// Begrüßung einmal anzeigen
-appendMessage("Fröhlichen guten Tag. Ich bin SKIM. Möchtest du mehr über Mario erfahren?", "bot-greet");
+// Alte Sitzung wiederherstellen
+history.forEach(msg => appendMessage(msg.content, msg.role));
+
+function saveHistory() {
+  localStorage.setItem("skimHistory", JSON.stringify(history));
+}
+
+function appendMessage(text, sender) {
+  const div = document.createElement("div");
+  div.className = "message " + sender;
+  div.textContent = text;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
 
 sendBtn.onclick = async () => {
-  const text = input.value.trim();
-  if (!text) return;
-  // User-Message
-  appendMessage(text, "user");
-  history.push({ role: "user", content: text });
+  const message = input.value.trim();
+  if (!message) return;
+
+  appendMessage(message, "user");
+  history.push({ role: "user", content: message });
+  saveHistory();
   input.value = "";
+
   // Lade-Indicator
   appendMessage("…", "bot");
   const loading = chat.lastChild;
@@ -23,29 +36,15 @@ sendBtn.onclick = async () => {
     const res = await fetch("/.netlify/functions/chatbot", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: text, history }),
+      body: JSON.stringify({ message, history })
     });
     const { answer } = await res.json();
-
-    // remove loading
     chat.removeChild(loading);
-
-    if (answer) {
-      appendMessage(answer, "bot");
-      history.push({ role: "assistant", content: answer });
-    } else {
-      appendMessage("Entschuldigung, da ist etwas schiefgelaufen.", "bot");
-    }
+    appendMessage(answer, "bot");
+    history.push({ role: "bot", content: answer });
+    saveHistory();
   } catch {
     chat.removeChild(loading);
-    appendMessage("Fehler beim Serverkontakt. Bitte später erneut.", "bot");
+    appendMessage("Entschuldigung, da ist etwas schiefgelaufen.", "bot");
   }
 };
-
-function appendMessage(txt, cls) {
-  const d = document.createElement("div");
-  d.className = "message " + cls;
-  d.textContent = txt;
-  chat.appendChild(d);
-  chat.scrollTop = chat.scrollHeight;
-}
