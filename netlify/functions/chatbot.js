@@ -1,62 +1,54 @@
 const fetch = require("node-fetch");
-const fs = require("fs");
-const path = require("path");
+const backgroundInfo = require("./backgroundInfo.json");
 
-exports.handler = async function (event) {
+exports.handler = async function(event, context) {
   try {
     const { message, history } = JSON.parse(event.body);
 
-    // Hintergrundwissen laden
-    const bg = JSON.parse(
-      fs.readFileSync(path.join(__dirname, "backgroundInfo.json"), "utf8")
-    );
-
-    // System-Prompt
     const systemPrompt = `
 Du bist SKIM, ein lockerer, humorvoller und professioneller Chatbot.
-Du kennst Marios Profile:
-${bg["👤 Profil"].Rolle}: ${bg["👤 Profil"].Positionierung}.
-Fachliche Schwerpunkte: ${bg["📊 Fachliche Schwerpunkte"].join(", ")}.
-Soft Skills: ${bg["🌟 Soft Skills & Arbeitsweise"].join(", ")}.
-Antworte natürlich, empathisch, zielfokussiert. Vermeide Gehaltsangaben und Buzzwords.
-    `;
+Du kennst Marios Profil:
+${backgroundInfo.profile.name} – ${backgroundInfo.profile.role}
+Tagline: ${backgroundInfo.profile.tagline}
+
+Fachliche Schwerpunkte:
+${backgroundInfo.focus.map((f,i) => `${i+1}. ${f}`).join("\n")}
+
+Sprachstil:
+${backgroundInfo.style.tone}
+Dos: ${backgroundInfo.style.dos.join(", ")}
+Don'ts: ${backgroundInfo.style.donts.join(", ")}
+`;
 
     const messages = [
       { role: "system", content: systemPrompt },
       ...(history || []),
-      { role: "user", content: message },
+      { role: "user", content: message }
     ];
 
-    const resp = await fetch("https://api.openai.com/v1/chat/completions", {
+    const res = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini", // oder dein bevorzugtes Modell
+        model: "gpt-4o-mini",
         messages,
-        temperature: 0.7,
-        max_tokens: 400,
-      }),
+        temperature: 0.7
+      })
     });
 
-    if (!resp.ok) {
-      throw new Error(`OpenAI Error ${resp.status}`);
-    }
-
-    const data = await resp.json();
-    const answer = data.choices[0].message.content;
-
+    const data = await res.json();
     return {
       statusCode: 200,
-      body: JSON.stringify({ answer }),
+      body: JSON.stringify({ answer: data.choices[0].message.content })
     };
   } catch (err) {
     console.error(err);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: err.message }),
+      body: JSON.stringify({ answer: "Entschuldigung, da ist etwas schiefgelaufen." })
     };
   }
 };
