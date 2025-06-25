@@ -1,66 +1,75 @@
-const fetch = require("node-fetch");
-const fs = require("fs");
+// netlify/functions/chatbot.js
 const path = require("path");
+const fs = require("fs");
+const fetch = require("node-fetch");
 
-// 1) Hintergrund-Infos laden und in lesbaren Text wandeln
-const raw = fs.readFileSync(path.join(__dirname, "../../backgroundInfo.json"), "utf-8");
-const bg = JSON.parse(raw);
-const infoText = [
-  `Name: ${bg.person.name}`,
-  `Rollen: ${bg.person.roles.join(", ")}`,
-  `Positionierung: ${bg.person.positionierung}`,
-  `Hard Skills: ${bg.hardSkills.join(", ")}`,
-  `Soft Skills: ${bg.softSkills.join(", ")}`
-].join("\n- ");
-const bgPrompt = `Hintergrund zu Mario:\n- ${infoText}`;
-
-exports.handler = async (event) => {
+exports.handler = async function(event, context) {
   try {
-    const { prompt: userPrompt } = JSON.parse(event.body);
-    const apiKey = process.env.OPENAI_API_KEY;
+    // 1) Request body auslesen
+    const { message, history } = JSON.parse(event.body);
 
-    if (!apiKey) {
-      return {
-        statusCode: 500,
-        body: JSON.stringify({ reply: "Serverkonfiguration fehlerhaft: API-Key fehlt." })
-      };
-    }
+    // 2) Hintergrundwissen laden
+    const infoPath = path.join(__dirname, "backgroundInfo.json");
+    const backgroundInfo = JSON.parse(fs.readFileSync(infoPath, "utf8"));
 
+    console.log("Loaded backgroundInfo.json:", Object.keys(backgroundInfo));
+
+    // 3) System-Prompt bauen
     const systemPrompt = `
-Du bist SKIM, der persönliche digitale Assistent von Mario Wittmer.
-Beantworte ausschließlich Fragen zu Mario, seinen Skills, Projekten und Angeboten.
-Sprich locker-humorvoll, professionell und empathisch.
+Du bist SKIM, Marios persönlicher digitaler Assistent.
+Name: ${backgroundInfo.name}
+Tagline: ${backgroundInfo.tagline}
+Rollen: ${backgroundInfo.roles.join(", ")}
+Skills: ${backgroundInfo.skills.join(", ")}
+Soft Skills: ${backgroundInfo.softSkills.join(", ")}
+Projekte: ${backgroundInfo.projects.join(", ")}
+
+Sprich freundlich, direkt und professionell.
     `.trim();
 
+    // 4) Nachrichten-Array
+    const messages = [
+      { role: "system", content: systemPrompt },
+      ...(history || []),
+      { role: "user", content: message }
+    ];
+
+    // 5) Call OpenAI
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${apiKey}`,
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini-hi",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "system", content: bgPrompt },
-          { role: "user",   content: userPrompt }
-        ]
+        model: "gpt-4o-mini",
+        messages,
+        max_tokens: 400,
+        temperature: 0.7
       })
     });
 
-    const json = await response.json();
-    const reply = json.choices?.[0]?.message?.content || 
-                  "Entschuldigung, da ist etwas schiefgelaufen.";
+    if (!response.ok) {
+      console.error("OpenAI API ERROR", await response.text());
+      return {
+        statusCode: response.status,
+        body: JSON.stringify({ error: "OpenAI API Error" })
+      };
+    }
+
+    const data = await response.json();
+    const answer = data.choices[0].message.content;
 
     return {
-      statusCode: response.ok ? 200 : 500,
-      body: JSON.stringify({ reply })
+      statusCode: 200,
+      body: JSON.stringify({ answer })
     };
 
-  } catch (err) {
+  } catch (error) {
+    console.error("Function error:", error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ reply: "Entschuldigung, da ist etwas schiefgelaufen." })
+      body: JSON.stringify({ error: error.message })
     };
   }
 };
