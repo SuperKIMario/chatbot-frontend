@@ -3,166 +3,146 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Mario Wittmer – digitaler Assistent SKIM</title>
+  <title>Mario Wittmer – Digitaler Assistent SKIM</title>
   <style>
     :root {
       --blue: #001055;
       --gold: #e2b007;
-      --ivory: #ffffec;
+      --light: #ffffec;
       --white: #ffffff;
-      --font-sans: "Poppins", "Inter", "Open Sans", sans-serif;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: var(--font-sans);
+      font-family: 'Poppins', sans-serif;
       background: linear-gradient(135deg, #001055, #3a3cff);
-      display: flex; justify-content: center; align-items: center;
       min-height: 100vh;
+      display: flex; justify-content: center; align-items: center;
     }
     #container {
-      background: var(--ivory);
+      background: var(--light);
       border-radius: 16px;
       padding: 32px;
-      max-width: 1080px;
       width: 90%;
+      max-width: 1000px;
+      /* Verhindert, dass der Container zu hoch wird */
+      max-height: 90vh;
       display: flex;
       gap: 32px;
     }
     /* Text-Section */
-    #text-section { flex: 1; }
+    #text-section {
+      flex: 1;
+    }
     #text-section h1 {
       font-size: 2.5rem;
       color: var(--blue);
-      margin-bottom: 8px;
-    }
-    .claim {
-      color: var(--gold);
-      font-weight: 600;
-      font-size: 1.25rem;
       margin-bottom: 16px;
+    }
+    #text-section .claim {
+      font-size: 1.25rem;
+      color: var(--gold);
+      margin-bottom: 24px;
+      white-space: nowrap;
     }
     #text-section p {
-      margin-bottom: 16px;
-      line-height: 1.5;
       color: var(--blue);
+      margin-bottom: 24px;
+      line-height: 1.4;
     }
-    #text-section p:last-of-type {
-      margin-top: 24px;
-      font-weight: 600;
-    }
-    #btn-appointment {
+    #text-section a {
       display: inline-block;
       background: var(--blue);
-      color: var(--gold);
+      color: var(--white);
       padding: 12px 24px;
       border-radius: 8px;
       text-decoration: none;
-      font-weight: 600;
+      font-weight: bold;
     }
     /* Chat-Section */
     #chat-section {
-      width: 320px;
+      width: 350px;
       display: flex;
       flex-direction: column;
       border-radius: 16px;
       overflow: hidden;
-      background: var(--ivory);
       border: 2px solid var(--blue);
+      background: var(--light);
     }
     #chat-header {
       background: var(--blue);
-      color: var(--ivory);
-      padding: 12px;
+      color: var(--white);
+      padding: 16px;
       display: flex;
       align-items: center;
       gap: 12px;
     }
     #chat-header img {
-      width: 40px; height: 40px;
-      border-radius: 50%;
+      width: 40px; height: 40px; border-radius: 50%;
       border: 2px solid var(--gold);
     }
-    #chat-header h2 {
-      font-size: 1.25rem;
-    }
+    #chat-header h2 { font-size: 1.25rem; margin: 0; }
+    /* Hier wird das Chat-Fenster scrollbar gemacht */
     #chat {
       flex: 1;
-      padding: 12px;
-      background: var(--ivory);
+      padding: 16px;
+      background: var(--light);
       overflow-y: auto;
+      /* Optional: passt die Höhe so an, dass Header und Input frei bleiben */
+      max-height: calc(90vh - 140px);
     }
-    .message {
-      margin-bottom: 12px;
-      padding: 12px;
-      border-radius: 8px;
-      max-width: 80%;
-    }
-    .bot-greet {
-      background: var(--gold);
-      color: var(--blue);
-      border: 1px solid var(--blue);
-      font-weight: 600;
-    }
-    .bot {
-      background: #fbd28f;
-      color: var(--blue);
-    }
-    .user {
-      background: #fff;
-      color: var(--blue);
-      margin-left: auto;
-      border: 1px solid var(--blue);
-    }
-    #input-area {
+    .message { margin-bottom: 12px; padding: 12px; border-radius: 8px; max-width: 80%; }
+    .message.bot { background: var(--gold); color: var(--blue); }
+    .message.user { background: var(--white); color: var(--blue); margin-left: auto; }
+    #chat-input {
       display: flex;
-      border-top: 1px solid var(--blue);
+      border-top: 2px solid var(--blue);
+      background: var(--gold);
+      padding: 8px;
     }
     #userInput {
       flex: 1;
-      padding: 12px;
-      border: none;
-      outline: none;
-      font-size: 1rem;
+      padding: 8px 12px;
+      border: 2px solid var(--white);
+      border-radius: 8px;
+      margin-right: 8px;
     }
     #sendBtn {
       background: var(--blue);
-      color: var(--ivory);
+      color: var(--white);
       border: none;
       padding: 0 16px;
+      border-radius: 8px;
       cursor: pointer;
+      font-size: 1.25rem;
     }
   </style>
 </head>
 <body>
   <div id="container">
-          <section id="text-section">
+    <section id="text-section">
       <h1>Mario Wittmer</h1>
-      <div class="claim">Operativ stark | Strategisch klar | Digital bereit</div>
+      <div class="claim">
+        Operativ stark | Strategisch klar | Digital bereit
+      </div>
       <p>Du willst wissen, wie ich ticke, was ich kann oder ob ich der Richtige für dein Projekt bin? <strong>Frag SKIM.</strong></p>
-      <p><strong>SKIM ist mein digitaler Assistent.</strong> 
-        <br>
-        Er hilft dir dabei, mehr über mich und meine Arbeit zu erfahren – direkt, unkompliziert und rund um die Uhr.</p>
-      <p>
-        Bist du neugierig, wie ein Chatbot auf deiner Unternehmensseite dein Team unterstützen kann, ohne Menschen zu ersetzen?
-        <br>
-        Dann buch dir jetzt direkt deinen Termin – ich freue mich auf deine Ideen!
-      </p>
-      <a id="btn-appointment" href="https://calendly.com/mariowittmer/vereinbaren-sie-jetzt-einfach-einen-termin-mit-mir" target="_blank" rel="noopener">
-        Termin buchen
-      </a>
+      <p><strong>SKIM</strong> ist mein digitaler Assistent. Er hilft dir dabei, mehr über mich und meine Arbeit zu erfahren – direkt, unkompliziert und rund um die Uhr.</p>
+      <p><strong>Bist du neugierig, wie ein Chatbot auf deiner Unternehmensseite dein Team unterstützen kann, ohne Menschen zu ersetzen? Dann buch dir jetzt direkt deinen Termin – ich freue mich auf deine Ideen!</strong></p>
+      <a href="https://calendly.com/mariowittmer/vereinbaren-sie-jetzt-einfach-einen-termin-mit-mir" target="_blank" rel="noopener">Termin buchen</a>
     </section>
-          <section id="chat-section">
+
+    <section id="chat-section">
       <div id="chat-header">
-        <img src="avatar.png" alt="Avatar SKIM" />
+        <img src="avatar.png" alt="Mario Wittmer" />
         <h2>SKIM</h2>
       </div>
       <div id="chat"></div>
-      <div id="input-area">
-        <input type="text" id="userInput" placeholder="Schreibe hier deine Frage.." />
+      <div id="chat-input">
+        <input id="userInput" type="text" placeholder="Schreibe hier deine Frage.." />
         <button id="sendBtn">→</button>
       </div>
     </section>
   </div>
+
   <script src="chat.js"></script>
 </body>
 </html>
