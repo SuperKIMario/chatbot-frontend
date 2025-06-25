@@ -3,22 +3,17 @@ const chat = document.getElementById("chat");
 const input = document.getElementById("userInput");
 const sendBtn = document.getElementById("sendBtn");
 
-// Chat-Verlauf in JS-Array & localStorage
-const history = [];
-const stored = localStorage.getItem("skimChatHistory");
-if (stored) {
-  const saved = JSON.parse(stored);
-  saved.forEach(m => appendMessage(m.content, m.role));
-  history.push(...saved);
-}
+// Chat-History aus localStorage
+const history = JSON.parse(localStorage.getItem("skimChatHistory") || "[]");
+history.forEach(msg => appendMessage(msg.content, msg.role));
 
 function saveHistory() {
   localStorage.setItem("skimChatHistory", JSON.stringify(history));
 }
 
-function appendMessage(text, role) {
+function appendMessage(text, sender) {
   const div = document.createElement("div");
-  div.className = "message " + (role === "user" ? "user" : "assistant");
+  div.className = `message ${sender === "user" ? "user" : "bot"}`;
   div.textContent = text;
   chat.appendChild(div);
   chat.scrollTop = chat.scrollHeight;
@@ -28,32 +23,39 @@ sendBtn.onclick = async () => {
   const message = input.value.trim();
   if (!message) return;
 
-  // User-Nachricht
+  // 1) User-Nachricht anhängen & speichern
   appendMessage(message, "user");
   history.push({ role: "user", content: message });
   saveHistory();
   input.value = "";
 
-  // Lade-Indikator als Assistant-Nachricht
-  appendMessage("⏳", "assistant");
+  // 2) Lade-Indikator
+  const loading = document.createElement("div");
+  loading.className = "message bot loading";
+  loading.textContent = "...";
+  chat.appendChild(loading);
+  chat.scrollTop = chat.scrollHeight;
 
   try {
+    // 3) Anfrage an unsere Function
     const res = await fetch("/.netlify/functions/chatbot", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message, history })
     });
-    const { reply } = await res.json();
+    const data = await res.json();
+    chat.removeChild(loading);
 
-    // Lade-Indikator entfernen
-    chat.lastChild.remove();
+    if (data.answer) {
+      appendMessage(data.answer, "assistant");
+      history.push({ role: "assistant", content: data.answer });
+      saveHistory();
+    } else {
+      appendMessage("Entschuldigung, da ist etwas schiefgelaufen.", "assistant");
+    }
 
-    // Assistants-Antwort
-    appendMessage(reply, "assistant");
-    history.push({ role: "assistant", content: reply });
-    saveHistory();
   } catch (e) {
-    chat.lastChild.remove();
-    appendMessage("Entschuldigung, da ist etwas schiefgelaufen.", "assistant");
+    chat.removeChild(loading);
+    appendMessage("Fehler beim Serverkontakt. Bitte versuche es später.", "assistant");
   }
 };
