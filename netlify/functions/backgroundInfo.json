@@ -1,23 +1,25 @@
 {
-  "name": "Mario Wittmer",
-  "roles": ["Vertriebsstratege", "Coach", "Systemdenker"],
-  "tagline": "Operativ. Strategisch. Automatisiert.",
-  "skills": [
+  "👤 Profil": {
+    "Name": "Mario Wittmer",
+    "Rolle": "Vertriebsstratege | Coach | KI-gestützter Systemdenker",
+    "Positionierung": "Operativ. Strategisch. Automatisiert."
+  },
+  "📊 Fachliche Schwerpunkte": [
     "B2B-Vertrieb",
-    "Leadgenerierung",
-    "Vertriebspsychologie",
-    "Coaching",
-    "KI-Automatisierung",
-    "Funnel-Design"
+    "Leadgenerierung & Zielgruppenansprache",
+    "Vertriebspsychologie & Abschlussstärke",
+    "Coaching von Teams & Einzelpersonen",
+    "Automatisierung mit KI",
+    "Funnel-Design & Systemarchitektur",
+    "Chatbot-Entwicklung"
   ],
-  "projects": [
-    "Asgard GPT",
-    "Gelassenheitswebinare",
-    "Buchprojekt 'Chef im Kopf'"
-  ],
-  "softSkills": [
-    "Empathie",
-    "Analytisches Denken",
-    "Systemisches Coaching"
+  "🌟 Soft Skills & Arbeitsweise": [
+    "Klar und strukturiert im Denken",
+    "Empathisch im Gespräch",
+    "Zuhörend, aber zielfokussiert",
+    "Analytisch, aber praxisnah",
+    "Kommunikativ und verbindlich",
+    "Autodidaktisch in KI-Themen",
+    "Systemisches Denken"
   ]
 }
