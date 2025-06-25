@@ -1,26 +1,38 @@
-const chatEl = document.getElementById("chat");
+const chatEl  = document.getElementById("chat");
 const inputEl = document.getElementById("userInput");
-const btnEl  = document.getElementById("sendBtn");
+const btnEl   = document.getElementById("sendBtn");
+
+// Hilfsfunktion zum Anhängen einer Nachricht
+function appendMessage(text, sender) {
+  const div = document.createElement("div");
+  div.className = `message ${sender}`;
+  div.textContent = text;
+  chatEl.appendChild(div);
+  chatEl.scrollTop = chatEl.scrollHeight;
+}
+
+// ────────────────────────────────────────────────────────────
+// NEUER BLOCK: Statische Begrüßung beim Laden
+// ────────────────────────────────────────────────────────────
+const history = [];
+window.addEventListener("DOMContentLoaded", () => {
+  const welcome = "Fröhlichen guten Tag. Ich bin SKIM. Möchtest du mehr über Mario erfahren?";
+  appendMessage(welcome, "system");
+  history.push({ role: "system", content: welcome });
+});
+// ────────────────────────────────────────────────────────────
 
 btnEl.onclick = async () => {
   const text = inputEl.value.trim();
   if (!text) return;
 
   // User-Nachricht anzeigen
-  const uDiv = document.createElement("div");
-  uDiv.className = "message user";
-  uDiv.textContent = text;
-  chatEl.appendChild(uDiv);
-  chatEl.scrollTop = chatEl.scrollHeight;
-
+  appendMessage(text, "user");
   inputEl.value = "";
 
   // Lade-Indikator
-  const load = document.createElement("div");
-  load.className = "message assistant";
-  load.textContent = "…";
-  chatEl.appendChild(load);
-  chatEl.scrollTop = chatEl.scrollHeight;
+  appendMessage("…", "assistant");
+  const load = chatEl.querySelector(".assistant:last-child");
 
   try {
     const res = await fetch("/.netlify/functions/chatbot", {
@@ -31,18 +43,10 @@ btnEl.onclick = async () => {
     const { reply } = await res.json();
 
     chatEl.removeChild(load);
-    const aDiv = document.createElement("div");
-    aDiv.className = "message assistant";
-    aDiv.textContent = reply;
-    chatEl.appendChild(aDiv);
-    chatEl.scrollTop = chatEl.scrollHeight;
+    appendMessage(reply, "assistant");
   }
   catch (e) {
     chatEl.removeChild(load);
-    const err = document.createElement("div");
-    err.className = "message assistant";
-    err.textContent = "Fehler beim Serverkontakt. Bitte später erneut.";
-    chatEl.appendChild(err);
-    chatEl.scrollTop = chatEl.scrollHeight;
+    appendMessage("Fehler beim Serverkontakt. Bitte später erneut.", "assistant");
   }
 };
