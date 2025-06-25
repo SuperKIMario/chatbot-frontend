@@ -1,61 +1,48 @@
-// chat.js
-const chat = document.getElementById("chat");
-const input = document.getElementById("userInput");
-const sendBtn = document.getElementById("sendBtn");
+const chatEl = document.getElementById("chat");
+const inputEl = document.getElementById("userInput");
+const btnEl  = document.getElementById("sendBtn");
 
-// Chat-History aus localStorage
-const history = JSON.parse(localStorage.getItem("skimChatHistory") || "[]");
-history.forEach(msg => appendMessage(msg.content, msg.role));
+btnEl.onclick = async () => {
+  const text = inputEl.value.trim();
+  if (!text) return;
 
-function saveHistory() {
-  localStorage.setItem("skimChatHistory", JSON.stringify(history));
-}
+  // User-Nachricht anzeigen
+  const uDiv = document.createElement("div");
+  uDiv.className = "message user";
+  uDiv.textContent = text;
+  chatEl.appendChild(uDiv);
+  chatEl.scrollTop = chatEl.scrollHeight;
 
-function appendMessage(text, sender) {
-  const div = document.createElement("div");
-  div.className = `message ${sender === "user" ? "user" : "bot"}`;
-  div.textContent = text;
-  chat.appendChild(div);
-  chat.scrollTop = chat.scrollHeight;
-}
+  inputEl.value = "";
 
-sendBtn.onclick = async () => {
-  const message = input.value.trim();
-  if (!message) return;
-
-  // 1) User-Nachricht anhängen & speichern
-  appendMessage(message, "user");
-  history.push({ role: "user", content: message });
-  saveHistory();
-  input.value = "";
-
-  // 2) Lade-Indikator
-  const loading = document.createElement("div");
-  loading.className = "message bot loading";
-  loading.textContent = "...";
-  chat.appendChild(loading);
-  chat.scrollTop = chat.scrollHeight;
+  // Lade-Indikator
+  const load = document.createElement("div");
+  load.className = "message assistant";
+  load.textContent = "…";
+  chatEl.appendChild(load);
+  chatEl.scrollTop = chatEl.scrollHeight;
 
   try {
-    // 3) Anfrage an unsere Function
     const res = await fetch("/.netlify/functions/chatbot", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message, history })
+      body: JSON.stringify({ prompt: text })
     });
-    const data = await res.json();
-    chat.removeChild(loading);
+    const { reply } = await res.json();
 
-    if (data.answer) {
-      appendMessage(data.answer, "assistant");
-      history.push({ role: "assistant", content: data.answer });
-      saveHistory();
-    } else {
-      appendMessage("Entschuldigung, da ist etwas schiefgelaufen.", "assistant");
-    }
-
-  } catch (e) {
-    chat.removeChild(loading);
-    appendMessage("Fehler beim Serverkontakt. Bitte versuche es später.", "assistant");
+    chatEl.removeChild(load);
+    const aDiv = document.createElement("div");
+    aDiv.className = "message assistant";
+    aDiv.textContent = reply;
+    chatEl.appendChild(aDiv);
+    chatEl.scrollTop = chatEl.scrollHeight;
+  }
+  catch (e) {
+    chatEl.removeChild(load);
+    const err = document.createElement("div");
+    err.className = "message assistant";
+    err.textContent = "Fehler beim Serverkontakt. Bitte später erneut.";
+    chatEl.appendChild(err);
+    chatEl.scrollTop = chatEl.scrollHeight;
   }
 };
