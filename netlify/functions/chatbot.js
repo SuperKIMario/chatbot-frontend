@@ -1,75 +1,62 @@
-// netlify/functions/chatbot.js
-const path = require("path");
-const fs = require("fs");
 const fetch = require("node-fetch");
+const fs = require("fs");
+const path = require("path");
 
-exports.handler = async function(event, context) {
+exports.handler = async function (event) {
   try {
-    // 1) Request body auslesen
     const { message, history } = JSON.parse(event.body);
 
-    // 2) Hintergrundwissen laden
-    const infoPath = path.join(__dirname, "backgroundInfo.json");
-    const backgroundInfo = JSON.parse(fs.readFileSync(infoPath, "utf8"));
+    // Hintergrundwissen laden
+    const bg = JSON.parse(
+      fs.readFileSync(path.join(__dirname, "backgroundInfo.json"), "utf8")
+    );
 
-    console.log("Loaded backgroundInfo.json:", Object.keys(backgroundInfo));
-
-    // 3) System-Prompt bauen
+    // System-Prompt
     const systemPrompt = `
-Du bist SKIM, Marios persönlicher digitaler Assistent.
-Name: ${backgroundInfo.name}
-Tagline: ${backgroundInfo.tagline}
-Rollen: ${backgroundInfo.roles.join(", ")}
-Skills: ${backgroundInfo.skills.join(", ")}
-Soft Skills: ${backgroundInfo.softSkills.join(", ")}
-Projekte: ${backgroundInfo.projects.join(", ")}
+Du bist SKIM, ein lockerer, humorvoller und professioneller Chatbot.
+Du kennst Marios Profile:
+${bg["👤 Profil"].Rolle}: ${bg["👤 Profil"].Positionierung}.
+Fachliche Schwerpunkte: ${bg["📊 Fachliche Schwerpunkte"].join(", ")}.
+Soft Skills: ${bg["🌟 Soft Skills & Arbeitsweise"].join(", ")}.
+Antworte natürlich, empathisch, zielfokussiert. Vermeide Gehaltsangaben und Buzzwords.
+    `;
 
-Sprich freundlich, direkt und professionell.
-    `.trim();
-
-    // 4) Nachrichten-Array
     const messages = [
       { role: "system", content: systemPrompt },
       ...(history || []),
-      { role: "user", content: message }
+      { role: "user", content: message },
     ];
 
-    // 5) Call OpenAI
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    const resp = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
+        model: "gpt-4o-mini", // oder dein bevorzugtes Modell
         messages,
+        temperature: 0.7,
         max_tokens: 400,
-        temperature: 0.7
-      })
+      }),
     });
 
-    if (!response.ok) {
-      console.error("OpenAI API ERROR", await response.text());
-      return {
-        statusCode: response.status,
-        body: JSON.stringify({ error: "OpenAI API Error" })
-      };
+    if (!resp.ok) {
+      throw new Error(`OpenAI Error ${resp.status}`);
     }
 
-    const data = await response.json();
+    const data = await resp.json();
     const answer = data.choices[0].message.content;
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ answer })
+      body: JSON.stringify({ answer }),
     };
-
-  } catch (error) {
-    console.error("Function error:", error);
+  } catch (err) {
+    console.error(err);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: error.message })
+      body: JSON.stringify({ error: err.message }),
     };
   }
 };
