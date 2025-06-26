@@ -40,6 +40,17 @@ btnEl.onclick = async () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ prompt: text })
     });
+    
+    // Custom-Message bei zu vielen Anfragen
+    if (res.status === 429) {
+      chatEl.removeChild(load);
+      appendMessage(
+        "Vielen Dank für deine Fragen. Möchtest du noch mehr wissen? Dann buch dir jetzt direkt über mariowittmer.de deinen persönlichen Termin ein. Ich wünsche euch einen bereichernden Austausch.",
+        "assistant"
+      );
+      return;
+    }
+
     const { reply } = await res.json();
 
     chatEl.removeChild(load);
