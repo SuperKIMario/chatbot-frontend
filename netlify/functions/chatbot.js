@@ -16,11 +16,11 @@ exports.handler = async function(event) {
       calls[ip] = { count: 0, reset: now };
     }
     if (calls[ip].count >= 5) {
-      // Limit erreicht
+      // Limit erreicht → eigene Nachricht zurückliefern
       return {
         statusCode: 429,
         body: JSON.stringify({
-          error: "Rate limit exceeded: max 5 requests per 24 hours."
+          reply: "Vielen Dank für deine Fragen. Möchtest du noch mehr wissen? Dann buch dir jetzt direkt über mariowittmer.de deinen persönlichen Termin ein. Ich wünsche euch einen bereichernden Austausch."
         })
       };
     }
